@@ -1,0 +1,42 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="entry-form">
+
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>Title</mat-label>
+    <input matInput formControlName="title" placeholder="Give your entry a title…" />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>How was your day?</mat-label>
+    <textarea
+      matInput
+      formControlName="body"
+      rows="10"
+      placeholder="Write freely…"
+    ></textarea>
+    <mat-error>Body is required.</mat-error>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="mood-field">
+    <mat-label>Mood</mat-label>
+    <mat-select formControlName="mood">
+      <mat-option [value]="null">Not set</mat-option>
+      @for (n of moodOptions; track n) {
+        <mat-option [value]="n">{{ n }} / 10</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  <app-tag-chips
+    [tags]="form.controls.tags.value"
+    (tagsChange)="onTagsChange($event)"
+  />
+
+  @if (saving) {
+    <app-loading [diameter]="32" />
+  } @else {
+    <button mat-flat-button type="submit" [disabled]="form.invalid">
+      Save Entry
+    </button>
+  }
+
+</form>

@@ -1,0 +1,19 @@
+<mat-form-field class="tag-chips-field">
+  <mat-label>Tags</mat-label>
+  <mat-chip-grid #chipGrid>
+    @for (tag of tags; track tag) {
+      <mat-chip-row (removed)="removeTag(tag)">
+        {{ tag }}
+        <button matChipRemove [attr.aria-label]="'Remove ' + tag">
+          <mat-icon>cancel</mat-icon>
+        </button>
+      </mat-chip-row>
+    }
+    <input
+      placeholder="Add tag…"
+      [matChipInputFor]="chipGrid"
+      [matChipInputSeparatorKeyCodes]="separatorKeyCodes"
+      (matChipInputTokenEnd)="addTag($event)"
+    />
+  </mat-chip-grid>
+</mat-form-field>
