@@ -1,0 +1,18 @@
+<div class="today-page">
+
+  <header class="today-header">
+    <h1 class="today-title">Today's Reflection</h1>
+    <p class="today-date">{{ todayLabel }}</p>
+  </header>
+
+  @if (loading) {
+    <app-loading />
+  } @else {
+    <app-entry-editor
+      [entry]="entry"
+      [saving]="saving"
+      (save)="onSave($event)"
+    />
+  }
+
+</div>
