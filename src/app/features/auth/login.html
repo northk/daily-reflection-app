@@ -1,0 +1,74 @@
+<div class="login-page">
+  <mat-card class="login-card">
+
+    <mat-card-header>
+      <mat-card-title>Daily Reflection</mat-card-title>
+      <mat-card-subtitle>
+        {{ isSignUp ? 'Create your account' : 'Sign in to continue' }}
+      </mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+
+      @if (confirmationSent) {
+        <p class="confirmation-msg">
+          Check your email for a confirmation link, then sign in.
+        </p>
+        <button mat-stroked-button (click)="toggleMode()">Back to Sign In</button>
+      } @else {
+
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="login-form">
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Email</mat-label>
+            <input
+              matInput
+              formControlName="email"
+              type="email"
+              autocomplete="email"
+            />
+            <mat-error>A valid email is required.</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Password</mat-label>
+            <input
+              matInput
+              formControlName="password"
+              type="password"
+              [attr.autocomplete]="isSignUp ? 'new-password' : 'current-password'"
+            />
+            <mat-error>Password must be at least 6 characters.</mat-error>
+          </mat-form-field>
+
+          @if (error) {
+            <p class="error-msg" role="alert">{{ error }}</p>
+          }
+
+          @if (loading) {
+            <app-loading [diameter]="32" />
+          } @else {
+            <button
+              mat-flat-button
+              type="submit"
+              class="full-width"
+              [disabled]="form.invalid"
+            >
+              {{ isSignUp ? 'Sign Up' : 'Sign In' }}
+            </button>
+          }
+
+        </form>
+
+      }
+
+    </mat-card-content>
+
+    <mat-card-actions>
+      <button mat-button type="button" (click)="toggleMode()">
+        {{ isSignUp ? 'Already have an account? Sign in' : 'No account? Sign up' }}
+      </button>
+    </mat-card-actions>
+
+  </mat-card>
+</div>
