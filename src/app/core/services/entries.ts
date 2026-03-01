@@ -45,11 +45,10 @@ export class EntriesService {
     if (params.tag) {
       query = query.contains('tags', [params.tag]);
     }
-    if (params.limit !== undefined) {
-      query = query.limit(params.limit);
-    }
-    if (params.offset !== undefined && params.limit !== undefined) {
+    if (params.limit !== undefined && params.offset !== undefined) {
       query = query.range(params.offset, params.offset + params.limit - 1);
+    } else if (params.limit !== undefined) {
+      query = query.limit(params.limit);
     }
 
     const { data, error } = await query;
