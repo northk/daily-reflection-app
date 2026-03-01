@@ -1,0 +1,60 @@
+<div class="entry-list-page">
+
+  <h1 class="entry-list-title">Journal Entries</h1>
+
+  <div class="filter-bar">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Search</mat-label>
+      <input matInput [formControl]="searchControl" type="search" autocomplete="off" />
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+
+    @if (tagFilter.value) {
+      <div class="active-tag">
+        <span>Tag: {{ tagFilter.value }}</span>
+        <button mat-icon-button (click)="setTagFilter(tagFilter.value!)" aria-label="Clear tag filter">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+    }
+  </div>
+
+  @if (loading) {
+    <app-loading />
+  } @else if (entries.length === 0) {
+    <p class="empty-state">No entries found. Start writing today!</p>
+  } @else {
+    <div class="entry-cards">
+      @for (entry of entries; track entry.id) {
+        <mat-card class="entry-card" [routerLink]="['/entries', entry.id]">
+          <mat-card-header>
+            <mat-card-title>{{ entry.title || '(No title)' }}</mat-card-title>
+            <mat-card-subtitle>{{ formatDate(entry.entry_date) }}</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            @if (entry.body) {
+              <p class="entry-snippet">
+                {{ entry.body.substring(0, 120) }}{{ entry.body.length > 120 ? '…' : '' }}
+              </p>
+            }
+            @if (entry.mood) {
+              <p class="entry-mood">Mood: {{ entry.mood }}/10</p>
+            }
+            @if (entry.tags.length > 0) {
+              <div class="entry-tags">
+                @for (tag of entry.tags; track tag) {
+                  <button
+                    class="tag-chip"
+                    [class.active]="tagFilter.value === tag"
+                    (click)="setTagFilter(tag); $event.stopPropagation()"
+                  >{{ tag }}</button>
+                }
+              </div>
+            }
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+  }
+
+</div>

@@ -11,4 +11,14 @@ export const routes: Routes = [
     loadComponent: () => import('@features/entries/today').then(m => m.TodayComponent),
     canActivate: [authGuard],
   },
+  {
+    path: 'entries',
+    loadComponent: () => import('@features/entries/entry-list').then(m => m.EntryListComponent),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'entries/:id',
+    loadComponent: () => import('@features/entries/entry-detail').then(m => m.EntryDetailComponent),
+    canActivate: [authGuard],
+  },
 ];

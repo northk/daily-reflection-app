@@ -1,0 +1,25 @@
+.entry-detail-page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+.back-link {
+  margin-bottom: 16px;
+}
+
+.delete-section {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--mat-sys-outline-variant);
+}
+
+.delete-confirm-text {
+  margin: 0 0 12px;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.delete-confirm-actions {
+  display: flex;
+  gap: 8px;
+}
