@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { filter } from 'rxjs/operators';
-import { User } from '@supabase/supabase-js';
+import type { User } from '@supabase/supabase-js';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { EntriesService } from '@core/services/entries';
 import { AuthService } from '@core/services/auth';

@@ -14,7 +14,6 @@
         <p class="confirmation-msg">
           Check your email for a confirmation link, then sign in.
         </p>
-        <button mat-stroked-button (click)="toggleMode()">Back to Sign In</button>
       } @else {
 
         <form [formGroup]="form" (ngSubmit)="onSubmit()" class="login-form">
