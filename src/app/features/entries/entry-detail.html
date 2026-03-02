@@ -14,6 +14,45 @@
       (save)="onSave($event)"
     />
 
+    <div class="ai-section">
+      @if (reflecting) {
+        <app-loading [diameter]="32" />
+      } @else {
+        <button mat-stroked-button (click)="onReflectDeeper()">
+          <mat-icon>psychology</mat-icon>
+          Reflect Deeper
+        </button>
+      }
+
+      @if (reflectResult) {
+        <mat-card class="ai-result-card">
+          <mat-card-header>
+            <mat-card-title>Reflection</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <p class="ai-section-label">Follow-up Questions</p>
+            <ul class="ai-items">
+              @for (q of reflectResult.follow_up_questions; track $index) {
+                <li>{{ q }}</li>
+              }
+            </ul>
+            <p class="ai-section-label">Reframes</p>
+            <ul class="ai-items">
+              @for (r of reflectResult.reframes; track $index) {
+                <li>{{ r }}</li>
+              }
+            </ul>
+            <p class="ai-section-label">Micro-Actions</p>
+            <ul class="ai-items">
+              @for (a of reflectResult.micro_actions; track $index) {
+                <li>{{ a }}</li>
+              }
+            </ul>
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+
     <div class="delete-section">
       @if (showDeleteConfirm) {
         <p class="delete-confirm-text">Are you sure you want to delete this entry?</p>

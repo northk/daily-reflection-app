@@ -1,17 +1,30 @@
 import { Component, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
 import { MatCard, MatCardContent, MatCardHeader, MatCardTitle } from '@angular/material/card';
 import { BaseChartDirective, provideCharts, withDefaultRegisterables } from 'ng2-charts';
 import type { ChartData, ChartOptions } from 'chart.js';
 import { EntriesService } from '@core/services/entries';
+import { AiService } from '@core/services/ai';
 import { Entry } from '@core/models/entry';
+import type { WeeklySummaryResponse } from '@core/models/ai';
 import { LoadingComponent } from '@shared/components/loading/loading';
 
 @Component({
   selector: 'app-stats',
   standalone: true,
   providers: [provideCharts(withDefaultRegisterables())],
-  imports: [MatCard, MatCardContent, MatCardHeader, MatCardTitle, BaseChartDirective, LoadingComponent],
+  imports: [
+    MatButton,
+    MatIcon,
+    MatCard,
+    MatCardContent,
+    MatCardHeader,
+    MatCardTitle,
+    BaseChartDirective,
+    LoadingComponent,
+  ],
   templateUrl: './stats.html',
   styleUrl: './stats.scss',
 })
@@ -21,6 +34,8 @@ export class StatsComponent implements OnInit {
   entryCount = 0;
   averageMood: number | null = null;
   topTags: Array<{ tag: string; count: number }> = [];
+  summarizing = false;
+  summaryResult: WeeklySummaryResponse | null = null;
 
   chartData: ChartData<'bar'> = {
     labels: [],
@@ -42,11 +57,30 @@ export class StatsComponent implements OnInit {
 
   constructor(
     private entriesService: EntriesService,
+    private aiService: AiService,
     private snackBar: MatSnackBar,
   ) {}
 
   ngOnInit(): void {
     this.loadStats();
+  }
+
+  async onWeeklySummary(): Promise<void> {
+    this.summarizing = true;
+    this.summaryResult = null;
+    try {
+      const startDate = this.subtractDays(this.todayDate, 6); // last 7 days
+      const entries = await this.entriesService.getEntriesInRange(startDate, this.todayDate);
+      if (entries.length === 0) {
+        this.snackBar.open('No entries in the last 7 days to summarize.', 'Dismiss', { duration: 4000 });
+        return;
+      }
+      this.summaryResult = await this.aiService.weeklySummary(entries);
+    } catch {
+      this.snackBar.open('Could not generate summary. Please try again.', 'Dismiss', { duration: 4000 });
+    } finally {
+      this.summarizing = false;
+    }
   }
 
   private async loadStats(): Promise<void> {

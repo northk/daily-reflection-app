@@ -6,16 +6,29 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
+import { MatCard, MatCardContent, MatCardHeader, MatCardTitle } from '@angular/material/card';
 import { EntriesService } from '@core/services/entries';
 import { AuthService } from '@core/services/auth';
+import { AiService } from '@core/services/ai';
 import { Entry } from '@core/models/entry';
+import type { ReflectDeeperResponse } from '@core/models/ai';
 import { EntryEditorComponent } from '@shared/components/entry-editor/entry-editor';
 import { LoadingComponent } from '@shared/components/loading/loading';
 
 @Component({
   selector: 'app-entry-detail',
   standalone: true,
-  imports: [RouterLink, MatButton, MatIcon, EntryEditorComponent, LoadingComponent],
+  imports: [
+    RouterLink,
+    MatButton,
+    MatIcon,
+    MatCard,
+    MatCardContent,
+    MatCardHeader,
+    MatCardTitle,
+    EntryEditorComponent,
+    LoadingComponent,
+  ],
   templateUrl: './entry-detail.html',
   styleUrl: './entry-detail.scss',
 })
@@ -23,6 +36,8 @@ export class EntryDetailComponent implements OnInit {
   entry: Entry | null = null;
   loading = true;
   saving = false;
+  reflecting = false;
+  reflectResult: ReflectDeeperResponse | null = null;
   showDeleteConfirm = false;
 
   private readonly id: string | null;
@@ -30,6 +45,7 @@ export class EntryDetailComponent implements OnInit {
   constructor(
     private entriesService: EntriesService,
     private auth: AuthService,
+    private aiService: AiService,
     private route: ActivatedRoute,
     private router: Router,
     private snackBar: MatSnackBar,
@@ -70,6 +86,20 @@ export class EntryDetailComponent implements OnInit {
       this.snackBar.open('Could not save. Please try again.', 'Dismiss', { duration: 4000 });
     } finally {
       this.saving = false;
+    }
+  }
+
+  async onReflectDeeper(): Promise<void> {
+    const entry = this.entry;
+    if (!entry) return;
+    this.reflecting = true;
+    this.reflectResult = null;
+    try {
+      this.reflectResult = await this.aiService.reflectDeeper(entry);
+    } catch {
+      this.snackBar.open('Could not generate reflection. Please try again.', 'Dismiss', { duration: 4000 });
+    } finally {
+      this.reflecting = false;
     }
   }
 

@@ -62,6 +62,59 @@
       </mat-card-content>
     </mat-card>
 
+    <mat-card class="section-card">
+      <mat-card-header>
+        <mat-card-title>Weekly Summary</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        @if (summarizing) {
+          <app-loading [diameter]="32" />
+        } @else {
+          <button mat-stroked-button (click)="onWeeklySummary()">
+            <mat-icon>auto_awesome</mat-icon>
+            Generate Summary
+          </button>
+        }
+
+        @if (summaryResult) {
+          <div class="summary-result">
+            <p class="summary-tone">
+              Tone: <strong>{{ summaryResult.tone.overall }}</strong>
+              &nbsp;·&nbsp; Trend: <strong>{{ summaryResult.tone.trend }}</strong>
+            </p>
+
+            <p class="ai-section-label">Themes</p>
+            <ul class="ai-items">
+              @for (t of summaryResult.themes; track $index) {
+                <li>{{ t }}</li>
+              }
+            </ul>
+
+            <p class="ai-section-label">Wins</p>
+            <ul class="ai-items">
+              @for (w of summaryResult.wins; track $index) {
+                <li>{{ w }}</li>
+              }
+            </ul>
+
+            <p class="ai-section-label">Stressors</p>
+            <ul class="ai-items">
+              @for (s of summaryResult.stressors; track $index) {
+                <li>{{ s }}</li>
+              }
+            </ul>
+
+            <p class="ai-section-label">Suggested Experiments</p>
+            <ul class="ai-items">
+              @for (e of summaryResult.suggested_experiments; track $index) {
+                <li>{{ e }}</li>
+              }
+            </ul>
+          </div>
+        }
+      </mat-card-content>
+    </mat-card>
+
   }
 
 </div>

@@ -3,16 +3,30 @@ import { firstValueFrom } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import type { User } from '@supabase/supabase-js';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
+import { MatCard, MatCardContent, MatCardHeader, MatCardTitle } from '@angular/material/card';
 import { EntriesService } from '@core/services/entries';
 import { AuthService } from '@core/services/auth';
+import { AiService } from '@core/services/ai';
 import { Entry } from '@core/models/entry';
+import type { ReflectDeeperResponse } from '@core/models/ai';
 import { EntryEditorComponent } from '@shared/components/entry-editor/entry-editor';
 import { LoadingComponent } from '@shared/components/loading/loading';
 
 @Component({
   selector: 'app-today',
   standalone: true,
-  imports: [EntryEditorComponent, LoadingComponent],
+  imports: [
+    MatButton,
+    MatIcon,
+    MatCard,
+    MatCardContent,
+    MatCardHeader,
+    MatCardTitle,
+    EntryEditorComponent,
+    LoadingComponent,
+  ],
   templateUrl: './today.html',
   styleUrl: './today.scss',
 })
@@ -20,6 +34,8 @@ export class TodayComponent implements OnInit {
   entry: Entry | null = null;
   loading = true;
   saving = false;
+  reflecting = false;
+  reflectResult: ReflectDeeperResponse | null = null;
 
   // Use local date parts to avoid UTC-vs-local timezone shift
   readonly todayDate: string = this.getLocalDateString();
@@ -27,6 +43,7 @@ export class TodayComponent implements OnInit {
   constructor(
     private entries: EntriesService,
     private auth: AuthService,
+    private aiService: AiService,
     private snackBar: MatSnackBar,
   ) {}
 
@@ -67,6 +84,19 @@ export class TodayComponent implements OnInit {
       this.snackBar.open('Could not save. Please try again.', 'Dismiss', { duration: 4000 });
     } finally {
       this.saving = false;
+    }
+  }
+
+  async onReflectDeeper(): Promise<void> {
+    if (!this.entry) return;
+    this.reflecting = true;
+    this.reflectResult = null;
+    try {
+      this.reflectResult = await this.aiService.reflectDeeper(this.entry);
+    } catch {
+      this.snackBar.open('Could not generate reflection. Please try again.', 'Dismiss', { duration: 4000 });
+    } finally {
+      this.reflecting = false;
     }
   }
 
