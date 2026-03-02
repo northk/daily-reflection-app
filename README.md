@@ -1,59 +1,157 @@
-# DailyReflectionApp
+# Daily Reflection
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.0.
+A private journaling app with AI-powered reflection. Write daily entries, track your mood and streaks, and get structured insights from Claude.
 
-## Development server
+## Features
 
-To start a local development server, run:
+- **Daily entries** — write, tag, and rate your mood (1–10) each day
+- **Entry history** — search and filter all past entries by keyword or tag
+- **Stats** — 14-day streak, avg mood, top tags, word-count chart
+- **Reflect Deeper** — AI analysis of a single entry: follow-up questions, reframes, micro-actions
+- **Weekly Summary** — AI synthesis of the last 7 days: themes, wins, stressors, suggested experiments
 
-```bash
-ng serve
-```
+## Tech Stack
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+| Layer | Technology |
+|---|---|
+| Frontend | Angular 21 + Angular Material (M3) |
+| Backend | Supabase (Postgres + Auth + Edge Functions) |
+| AI | Claude via Anthropic API (called from Edge Functions only) |
+| Charts | Chart.js via ng2-charts |
 
-## Code scaffolding
+---
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## Setup
 
-```bash
-ng generate component component-name
-```
+### 1. Prerequisites
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+- Node.js 20+
+- [Supabase CLI](https://supabase.com/docs/guides/cli)
+- A [Supabase](https://supabase.com) project
+- An [Anthropic API key](https://console.anthropic.com)
 
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+### 2. Clone and install
 
 ```bash
-ng test
+git clone <repo-url>
+cd daily-reflection-app
+npm install
 ```
 
-## Running end-to-end tests
+### 3. Configure Supabase
 
-For end-to-end (e2e) testing, run:
+In your Supabase project dashboard, open the **SQL Editor** and run the following:
+
+```sql
+-- 1. Table
+CREATE TABLE public.entries (
+  id          uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id     uuid        NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  entry_date  date        NOT NULL,
+  title       text,
+  body        text        NOT NULL,
+  tags        text[]      NOT NULL DEFAULT '{}'::text[],
+  mood        int,
+  created_at  timestamptz NOT NULL DEFAULT now(),
+  updated_at  timestamptz NOT NULL DEFAULT now(),
+  UNIQUE (user_id, entry_date)
+);
+
+-- 2. Auto-update updated_at
+CREATE OR REPLACE FUNCTION public.set_updated_at()
+RETURNS trigger AS $$
+BEGIN
+  NEW.updated_at = now();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER set_entries_updated_at
+BEFORE UPDATE ON public.entries
+FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+-- 3. Row Level Security
+ALTER TABLE public.entries ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "select_own_entries"
+ON public.entries FOR SELECT
+USING (auth.uid() = user_id);
+
+CREATE POLICY "insert_own_entries"
+ON public.entries FOR INSERT
+WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "update_own_entries"
+ON public.entries FOR UPDATE
+USING (auth.uid() = user_id)
+WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "delete_own_entries"
+ON public.entries FOR DELETE
+USING (auth.uid() = user_id);
+```
+
+In **Authentication → Providers**, make sure **Email** is enabled.
+
+### 4. Configure environment
+
+Copy the example environment file and fill in your Supabase credentials:
 
 ```bash
-ng e2e
+cp src/environments/environment.example.ts src/environments/environment.ts
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+Edit `src/environments/environment.ts`:
 
-## Additional Resources
+```ts
+export const environment = {
+  production: false,
+  supabaseUrl: 'https://your-project-id.supabase.co',
+  supabaseAnonKey: 'your-anon-key-here',
+};
+```
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Your project URL and anon key are in **Supabase → Project Settings → API**.
+
+> `environment.ts` is git-ignored and must never be committed.
+
+### 5. Run locally
+
+```bash
+npm start
+```
+
+Open [http://localhost:4200](http://localhost:4200). Sign up for an account and start writing.
+
+---
+
+## Deploying Edge Functions
+
+The AI features require two Supabase Edge Functions. Deploy them with the Supabase CLI:
+
+```bash
+# Log in and link to your project
+supabase login
+supabase link --project-ref your-project-id
+
+# Deploy both functions
+supabase functions deploy reflect-deeper
+supabase functions deploy weekly-summary
+
+# Set secrets
+supabase secrets set ANTHROPIC_API_KEY=sk-ant-...
+```
+
+The `CLAUDE_MODEL` secret is optional — the functions default to `claude-sonnet-4-6`.
+
+---
+
+## Production Build
+
+```bash
+npm run build
+```
+
+Output is in `dist/daily-reflection-app/browser`. Deploy to any static host (Netlify, Vercel, etc.).
+
+For production, create `src/environments/environment.prod.ts` with `production: true` and your live Supabase credentials.
