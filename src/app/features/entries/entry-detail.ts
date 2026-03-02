@@ -46,22 +46,23 @@ export class EntryDetailComponent implements OnInit {
   }
 
   async onSave(formValue: Partial<Entry>): Promise<void> {
-    if (!this.entry) return;
+    const entry = this.entry;
+    if (!entry) return;
     this.saving = true;
     try {
       const user = await firstValueFrom(
         this.auth.user$.pipe(filter((u): u is User => u !== null)),
       );
       const payload: Entry = {
-        id: this.entry.id,
+        id: entry.id,
         user_id: user.id,
-        entry_date: this.entry.entry_date,
+        entry_date: entry.entry_date,
         title: formValue.title ?? null,
         body: formValue.body ?? '',
         mood: formValue.mood ?? null,
         tags: formValue.tags ?? [],
-        created_at: this.entry.created_at,
-        updated_at: this.entry.updated_at,
+        created_at: entry.created_at,
+        updated_at: entry.updated_at,
       };
       this.entry = await this.entriesService.upsertEntry(payload);
       this.snackBar.open('Entry saved.', undefined, { duration: 2000 });

@@ -3,6 +3,11 @@ import { authGuard } from '@core/guards/auth';
 
 export const routes: Routes = [
   {
+    path: '',
+    redirectTo: 'today',
+    pathMatch: 'full',
+  },
+  {
     path: 'login',
     loadComponent: () => import('@features/auth/login').then(m => m.LoginComponent),
   },

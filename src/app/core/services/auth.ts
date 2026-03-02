@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Session, User } from '@supabase/supabase-js';
+import type { Session, User } from '@supabase/supabase-js';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { SupabaseService } from '@core/services/supabase';
