@@ -1,1 +1,17 @@
+@if (user()) {
+  <mat-toolbar class="app-toolbar">
+    <div class="toolbar-inner">
+      <span class="app-name">Daily Reflection</span>
+      <nav class="nav-links">
+        <a mat-button routerLink="/today" routerLinkActive="nav-active">Today</a>
+        <a mat-button routerLink="/entries" routerLinkActive="nav-active">Entries</a>
+        <a mat-button routerLink="/stats" routerLinkActive="nav-active">Stats</a>
+      </nav>
+      <button mat-icon-button (click)="signOut()" aria-label="Sign out">
+        <mat-icon>logout</mat-icon>
+      </button>
+    </div>
+  </mat-toolbar>
+}
+
 <router-outlet />

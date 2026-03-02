@@ -1,10 +1,27 @@
-import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, inject } from '@angular/core';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { MatToolbar } from '@angular/material/toolbar';
+import { MatButton, MatIconButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
+import { AuthService } from '@core/services/auth';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, MatToolbar, MatButton, MatIconButton, MatIcon],
   templateUrl: './app.html',
-  styleUrl: './app.scss'
+  styleUrl: './app.scss',
 })
-export class App {}
+export class App {
+  private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
+  readonly user = toSignal(this.auth.user$);
+
+  async signOut(): Promise<void> {
+    try {
+      await this.auth.signOut();
+    } finally {
+      this.router.navigate(['/login']);
+    }
+  }
+}
