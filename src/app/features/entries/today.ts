@@ -88,11 +88,12 @@ export class TodayComponent implements OnInit {
   }
 
   async onReflectDeeper(): Promise<void> {
-    if (!this.entry) return;
+    const entry = this.entry;
+    if (!entry) return;
     this.reflecting = true;
     this.reflectResult = null;
     try {
-      this.reflectResult = await this.aiService.reflectDeeper(this.entry);
+      this.reflectResult = await this.aiService.reflectDeeper(entry);
     } catch {
       this.snackBar.open('Could not generate reflection. Please try again.', 'Dismiss', { duration: 4000 });
     } finally {

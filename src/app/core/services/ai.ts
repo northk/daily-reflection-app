@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AuthService } from '@core/services/auth';
 import { Entry } from '@core/models/entry';
-import { ReflectDeeperResponse, WeeklySummaryResponse } from '@core/models/ai';
+import type { ReflectDeeperResponse, WeeklySummaryResponse } from '@core/models/ai';
 import { environment } from '@env/environment';
 
 @Injectable({ providedIn: 'root' })
