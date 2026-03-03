@@ -48,7 +48,13 @@ export class StatsComponent implements OnInit {
     responsive: true,
     maintainAspectRatio: false,
     scales: {
-      y: { beginAtZero: true },
+      y: {
+        beginAtZero: true,
+        ticks: { font: { size: 14 } },
+      },
+      x: {
+        ticks: { font: { size: 13 } },
+      },
     },
     plugins: {
       legend: { display: false },
