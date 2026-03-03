@@ -49,13 +49,14 @@
 }
 
 .entry-snippet {
-  margin: 0 0 8px;
+  margin: 0 0 12px;
+  line-height: 1.6;
   color: var(--mat-sys-on-surface-variant);
   font: var(--mat-sys-body-medium);
 }
 
 .entry-mood {
-  margin: 0 0 8px;
+  margin: 0 0 12px;
   font: var(--mat-sys-body-small);
   color: var(--mat-sys-on-surface-variant);
 }

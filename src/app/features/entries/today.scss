@@ -29,23 +29,24 @@
 }
 
 .ai-section-label {
-  margin: 12px 0 4px;
+  margin: 24px 0 8px;
   font: var(--mat-sys-label-large);
   color: var(--mat-sys-on-surface-variant);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 
   &:first-child {
-    margin-top: 0;
+    margin-top: 8px;
   }
 }
 
 .ai-items {
-  margin: 0 0 8px;
+  margin: 0 0 4px;
   padding-left: 20px;
 
   li {
-    margin-bottom: 4px;
+    margin-bottom: 10px;
+    line-height: 1.6;
     font: var(--mat-sys-body-medium);
   }
 }
