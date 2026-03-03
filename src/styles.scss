@@ -17,6 +17,13 @@ html {
       density: 0,
     )
   );
+
+  // M3 defaults body-medium and label-large to 14px. Override to 16px base.
+  --mat-sys-body-medium: 400 1rem/1.5rem Onest, sans-serif;
+  --mat-sys-body-small: 400 0.875rem/1.25rem Onest, sans-serif;
+  --mat-sys-label-large: 500 1rem/1.5rem Onest, sans-serif;
+  --mat-sys-label-medium: 500 0.875rem/1.25rem Onest, sans-serif;
+  --mat-sys-label-small: 500 0.75rem/1rem Onest, sans-serif;
 }
 
 body {
@@ -49,4 +56,12 @@ html .mat-mdc-card {
 
 html .mat-mdc-card-header {
   padding-bottom: 12px;
+}
+
+.mdc-button__label,
+.mat-mdc-button,
+.mat-mdc-outlined-button,
+.mat-mdc-unelevated-button,
+.mat-mdc-raised-button {
+  font-size: 1rem;
 }
