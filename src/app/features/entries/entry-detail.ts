@@ -14,6 +14,7 @@ import { Entry } from '@core/models/entry';
 import type { ReflectDeeperResponse } from '@core/models/ai';
 import { EntryEditorComponent } from '@shared/components/entry-editor/entry-editor';
 import { LoadingComponent } from '@shared/components/loading/loading';
+import { HeroBannerComponent } from '@shared/components/hero-banner/hero-banner';
 
 @Component({
   selector: 'app-entry-detail',
@@ -28,6 +29,7 @@ import { LoadingComponent } from '@shared/components/loading/loading';
     MatCardTitle,
     EntryEditorComponent,
     LoadingComponent,
+    HeroBannerComponent,
   ],
   templateUrl: './entry-detail.html',
   styleUrl: './entry-detail.scss',

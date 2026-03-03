@@ -10,6 +10,7 @@ import { AiService } from '@core/services/ai';
 import { Entry } from '@core/models/entry';
 import type { WeeklySummaryResponse } from '@core/models/ai';
 import { LoadingComponent } from '@shared/components/loading/loading';
+import { HeroBannerComponent } from '@shared/components/hero-banner/hero-banner';
 
 @Component({
   selector: 'app-stats',
@@ -24,6 +25,7 @@ import { LoadingComponent } from '@shared/components/loading/loading';
     MatCardTitle,
     BaseChartDirective,
     LoadingComponent,
+    HeroBannerComponent,
   ],
   templateUrl: './stats.html',
   styleUrl: './stats.scss',

@@ -13,6 +13,7 @@ import { Entry } from '@core/models/entry';
 import type { ReflectDeeperResponse } from '@core/models/ai';
 import { EntryEditorComponent } from '@shared/components/entry-editor/entry-editor';
 import { LoadingComponent } from '@shared/components/loading/loading';
+import { HeroBannerComponent } from '@shared/components/hero-banner/hero-banner';
 
 @Component({
   selector: 'app-today',
@@ -25,6 +26,7 @@ import { LoadingComponent } from '@shared/components/loading/loading';
     MatCardHeader,
     MatCardTitle,
     EntryEditorComponent,
+    HeroBannerComponent,
     LoadingComponent,
   ],
   templateUrl: './today.html',

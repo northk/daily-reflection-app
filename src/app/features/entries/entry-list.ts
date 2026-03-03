@@ -13,6 +13,7 @@ import { MatCard, MatCardContent, MatCardHeader, MatCardTitle, MatCardSubtitle }
 import { EntriesService } from '@core/services/entries';
 import { Entry } from '@core/models/entry';
 import { LoadingComponent } from '@shared/components/loading/loading';
+import { HeroBannerComponent } from '@shared/components/hero-banner/hero-banner';
 
 @Component({
   selector: 'app-entry-list',
@@ -32,6 +33,7 @@ import { LoadingComponent } from '@shared/components/loading/loading';
     MatCardTitle,
     MatCardSubtitle,
     LoadingComponent,
+    HeroBannerComponent,
   ],
   templateUrl: './entry-list.html',
   styleUrl: './entry-list.scss',
