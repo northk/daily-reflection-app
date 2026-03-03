@@ -15,3 +15,9 @@
 }
 
 <router-outlet />
+
+@if (user()) {
+  <div class="footer-banner">
+    <img src="hero.svg" class="footer-image" alt="" />
+  </div>
+}
