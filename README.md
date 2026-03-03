@@ -144,6 +144,12 @@ supabase secrets set ANTHROPIC_API_KEY=sk-ant-...
 
 The `CLAUDE_MODEL` secret is optional — the functions default to `claude-sonnet-4-6`.
 
+### Disable "Verify JWT with legacy secret"
+
+After deploying, go to **Edge Functions** in the Supabase dashboard and open each function. Find the **"Verify JWT with legacy secret"** toggle and turn it **off** for both `reflect-deeper` and `weekly-summary`.
+
+This setting blocks requests that don't use the anon key as their JWT, which conflicts with sending the user's session token. The functions handle their own JWT verification internally via `supabase.auth.getUser()`, so the platform-level toggle is not needed.
+
 ---
 
 ## Production Build
