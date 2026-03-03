@@ -1,14 +1,36 @@
 .login-page {
+  position: relative;
+}
+
+.hero-banner {
+  width: 100%;
+}
+
+.hero-image {
+  width: 100%;
+  display: block;
+}
+
+.login-content {
+  position: absolute;
+  inset: 0;
   display: flex;
   justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  padding: 16px;
+  align-items: flex-start;
+  padding: 20vh 24px 24px;
+}
+
+.card-wrap {
+  width: 100%;
+  max-width: 400px;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
 }
 
 .login-card {
   width: 100%;
-  max-width: 400px;
+  box-shadow: none;
 }
 
 .login-form {
