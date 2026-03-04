@@ -25,7 +25,8 @@ export class AiService {
     );
 
     if (!response.ok) {
-      throw new Error(`Reflect Deeper failed (${response.status}): ${response.statusText}`);
+      const err = await response.json().catch(() => ({}));
+      throw new Error(response.status === 429 ? err.error : `Reflect Deeper failed (${response.status})`);
     }
 
     return response.json();
@@ -48,7 +49,8 @@ export class AiService {
     );
 
     if (!response.ok) {
-      throw new Error(`Weekly Summary failed (${response.status}): ${response.statusText}`);
+      const err = await response.json().catch(() => ({}));
+      throw new Error(response.status === 429 ? err.error : `Weekly Summary failed (${response.status})`);
     }
 
     return response.json();

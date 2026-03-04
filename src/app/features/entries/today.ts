@@ -96,8 +96,9 @@ export class TodayComponent implements OnInit {
     this.reflectResult = null;
     try {
       this.reflectResult = await this.aiService.reflectDeeper(entry);
-    } catch {
-      this.snackBar.open('Could not generate reflection. Please try again.', 'Dismiss', { duration: 4000 });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Could not generate reflection. Please try again.';
+      this.snackBar.open(msg, 'Dismiss', { duration: 4000 });
     } finally {
       this.reflecting = false;
     }

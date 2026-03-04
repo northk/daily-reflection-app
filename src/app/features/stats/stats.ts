@@ -84,8 +84,9 @@ export class StatsComponent implements OnInit {
         return;
       }
       this.summaryResult = await this.aiService.weeklySummary(entries);
-    } catch {
-      this.snackBar.open('Could not generate summary. Please try again.', 'Dismiss', { duration: 4000 });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Could not generate summary. Please try again.';
+      this.snackBar.open(msg, 'Dismiss', { duration: 4000 });
     } finally {
       this.summarizing = false;
     }

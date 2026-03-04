@@ -1,5 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import Anthropic from 'https://esm.sh/@anthropic-ai/sdk'
+import { checkRateLimit } from '../_shared/rate-limit.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -35,7 +36,16 @@ Deno.serve(async (req: Request) => {
       })
     }
 
-    // 3. Parse and validate body
+    // 3. Check rate limit
+    const { allowed } = await checkRateLimit(user.id)
+    if (!allowed) {
+      return new Response(JSON.stringify({ error: 'Daily AI limit reached. Please try again tomorrow.' }), {
+        status: 429,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    // 4. Parse and validate body
     const body = await req.json()
     const { entries } = body
     if (!Array.isArray(entries) || entries.length === 0) {
@@ -45,7 +55,7 @@ Deno.serve(async (req: Request) => {
       })
     }
 
-    // 4. Build entries text for Claude (cap at 7)
+    // 5. Build entries text for Claude (cap at 7)
     const capped = entries.slice(0, 7)
     const entriesText = capped
       .map((e: Record<string, unknown>) => {
@@ -61,7 +71,7 @@ Deno.serve(async (req: Request) => {
       })
       .join('\n\n---\n\n')
 
-    // 5. Call Claude
+    // 6. Call Claude
     const anthropic = new Anthropic({ apiKey: Deno.env.get('ANTHROPIC_API_KEY')! })
     const model = Deno.env.get('CLAUDE_MODEL') ?? 'claude-sonnet-4-6'
 
@@ -88,7 +98,7 @@ Deno.serve(async (req: Request) => {
       ],
     })
 
-    // 6. Parse response (strip accidental markdown fences)
+    // 7. Parse response (strip accidental markdown fences)
     const raw = message.content[0]?.type === 'text' ? message.content[0].text.trim() : ''
     const cleaned = raw.replace(/^```json?\n?/, '').replace(/\n?```$/, '')
     const result = JSON.parse(cleaned)
