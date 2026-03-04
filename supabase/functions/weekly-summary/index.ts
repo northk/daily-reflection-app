@@ -2,8 +2,11 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import Anthropic from 'https://esm.sh/@anthropic-ai/sdk'
 import { checkRateLimit } from '../_shared/rate-limit.ts'
 
+// Restrict CORS to a specific origin in production via the CORS_ORIGIN secret.
+// Falls back to '*' for local development if the secret is not set.
+const allowedOrigin = Deno.env.get('CORS_ORIGIN') ?? '*'
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Origin': allowedOrigin,
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
@@ -101,7 +104,16 @@ Deno.serve(async (req: Request) => {
     // 7. Parse response (strip accidental markdown fences)
     const raw = message.content[0]?.type === 'text' ? message.content[0].text.trim() : ''
     const cleaned = raw.replace(/^```json?\n?/, '').replace(/\n?```$/, '')
-    const result = JSON.parse(cleaned)
+    let result
+    try {
+      result = JSON.parse(cleaned)
+    } catch {
+      console.error('weekly-summary: failed to parse Claude response:', cleaned)
+      return new Response(JSON.stringify({ error: 'Invalid response from AI. Please try again.' }), {
+        status: 502,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
 
     return new Response(JSON.stringify(result), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
