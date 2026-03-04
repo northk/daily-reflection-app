@@ -16,6 +16,7 @@ export class App {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   readonly user = toSignal(this.auth.user$);
+  readonly currentYear = new Date().getFullYear();
 
   async signOut(): Promise<void> {
     try {

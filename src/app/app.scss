@@ -39,6 +39,25 @@ a.nav-active {
   z-index: 0;
 }
 
+.footer-copyright {
+  position: absolute;
+  bottom: 24px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  margin: 0;
+  color: white;
+  font-size: 1rem;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+  pointer-events: auto;
+}
+
+.footer-link {
+  color: white;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 .footer-image {
   width: 100%;
   height: 100%;
