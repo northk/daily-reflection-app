@@ -31,4 +31,8 @@ export const routes: Routes = [
     loadComponent: () => import('@features/stats/stats').then(m => m.StatsComponent),
     canActivate: [authGuard],
   },
+  {
+    path: '**',
+    redirectTo: 'today',
+  },
 ];
