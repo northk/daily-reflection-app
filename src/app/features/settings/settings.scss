@@ -1,0 +1,75 @@
+:host {
+  display: block;
+  background-color: #FFF8EB;
+}
+
+.settings-page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 24px 16px 220px;
+}
+
+.settings-title {
+  margin: 0 0 24px;
+  font: var(--mat-sys-headline-medium);
+}
+
+.section-card {
+  margin-bottom: 16px;
+}
+
+.section-desc {
+  margin: 0 0 16px;
+  font: var(--mat-sys-body-medium);
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.danger-card mat-card-title {
+  color: var(--mat-sys-error);
+}
+
+.danger-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 0;
+
+  &:first-child {
+    padding-top: 0;
+  }
+}
+
+.danger-info {
+  flex: 1;
+}
+
+.danger-label {
+  margin: 0 0 4px;
+  font: var(--mat-sys-body-large);
+  font-weight: 500;
+}
+
+.danger-hint {
+  margin: 0;
+  font: var(--mat-sys-body-medium);
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.row-divider {
+  margin: 0;
+}
+
+.confirm-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  min-width: 220px;
+}
+
+.confirm-warning {
+  font: var(--mat-sys-body-small);
+  color: var(--mat-sys-error);
+  text-align: right;
+}

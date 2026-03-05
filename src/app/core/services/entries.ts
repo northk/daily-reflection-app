@@ -84,4 +84,44 @@ export class EntriesService {
     if (error) throw error;
     return data ?? [];
   }
+
+  async downloadEntriesAsCsv(): Promise<void> {
+    const { data, error } = await this.supabase.client
+      .from('entries')
+      .select('*')
+      .order('entry_date', { ascending: true });
+    if (error) throw error;
+
+    const entries: Entry[] = data ?? [];
+    const escape = (v: string | null | undefined) =>
+      '"' + (v ?? '').replace(/"/g, '""') + '"';
+
+    const rows = entries.map(e =>
+      [
+        e.entry_date,
+        escape(e.title),
+        e.mood ?? '',
+        escape((e.tags ?? []).join('|')),
+        escape(e.body),
+      ].join(',')
+    );
+
+    const csv = ['date,title,mood,tags,body', ...rows].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const today = new Date().toISOString().slice(0, 10);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `daily-reflection-export-${today}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  async deleteAllEntries(): Promise<void> {
+    const { error } = await this.supabase.client
+      .from('entries')
+      .delete()
+      .gte('entry_date', '2000-01-01');
+    if (error) throw error;
+  }
 }

@@ -37,6 +37,9 @@ verify_jwt = false
 [functions.weekly-summary]
 verify_jwt = false
 
+[functions.delete-account]
+verify_jwt = false
+
 [auth.email]
 enable_signup = true
 double_confirm_changes = true

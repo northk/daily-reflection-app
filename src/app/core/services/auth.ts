@@ -3,6 +3,7 @@ import type { Session, User } from '@supabase/supabase-js';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { SupabaseService } from '@core/services/supabase';
+import { environment } from '@env/environment';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -44,5 +45,21 @@ export class AuthService {
   async getAccessToken(): Promise<string | null> {
     const { data } = await this.supabase.client.auth.getSession();
     return data.session?.access_token ?? null;
+  }
+
+  async deleteAccount(): Promise<void> {
+    const token = await this.getAccessToken();
+    if (!token) throw new Error('Not authenticated');
+
+    const res = await fetch(`${environment.supabaseUrl}/functions/v1/delete-account`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      throw new Error((body as { error?: string }).error ?? 'Account deletion failed');
+    }
+
+    await this.signOut();
   }
 }
