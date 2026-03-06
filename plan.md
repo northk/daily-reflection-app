@@ -4,14 +4,15 @@
 
 1. **Scaffold** — Angular standalone-component app with Angular Material + routing already wired.
 2. **Core layer** — models, Supabase client service, auth service, entries service, ai service, auth guard.
-3. **Shared components** — `entry-editor`, `tag-chips`, `loading`.
+3. **Shared components** — `entry-editor`, `tag-chips`, `loading`, `hero-banner`.
 4. **Feature: Auth** — `/login` page (sign-in + sign-up toggle).
 5. **Feature: Today** — `/today` page (upsert entry for today's date).
 6. **Feature: Entries** — `/entries` list with search + tag filter; `/entries/:id` detail/edit/delete.
 7. **Feature: Stats** — `/stats` streak, counts, tag frequency, word-count chart (last 14 days).
-8. **Phase 2: AI** — two Supabase Edge Functions + `ai.ts` service + UI buttons on Today, Entry Detail, Stats.
-9. **Wiring** — `app.routes.ts`, `app.ts`, `app.config.ts`, environment files, `main.ts`.
-10. **Docs** — `README.md` with full setup guide.
+8. **Feature: Settings** — `/settings` CSV export, delete all entries, delete account.
+9. **Phase 2: AI** — three Supabase Edge Functions (`reflect-deeper`, `weekly-summary`, `delete-account`) + `ai.ts` service + UI buttons on Today, Entry Detail, Stats.
+10. **Wiring** — `app.routes.ts`, `app.ts`, `app.config.ts`, environment files, `main.ts`.
+11. **Docs** — `README.md` with full setup guide.
 
 ## File Tree
 
@@ -27,8 +28,9 @@ daily-reflection-app/
 │   ├── styles.scss
 │   ├── index.html
 │   ├── environments/
-│   │   ├── environment.ts
-│   │   └── environment.prod.ts
+│   │   ├── environment.ts          ← git-ignored; generated at build time
+│   │   ├── environment.prod.ts
+│   │   └── environment.example.ts  ← committed template (no secrets)
 │   └── app/
 │       ├── app.ts
 │       ├── app.html
@@ -61,16 +63,24 @@ daily-reflection-app/
 │       │   │   ├── entry-detail.ts
 │       │   │   ├── entry-detail.html
 │       │   │   └── entry-detail.scss
-│       │   └── stats/
-│       │       ├── stats.ts
-│       │       ├── stats.html
-│       │       └── stats.scss
+│       │   ├── stats/
+│       │   │   ├── stats.ts
+│       │   │   ├── stats.html
+│       │   │   └── stats.scss
+│       │   └── settings/
+│       │       ├── settings.ts
+│       │       ├── settings.html
+│       │       └── settings.scss
 │       └── shared/
 │           └── components/
 │               ├── entry-editor/
 │               │   ├── entry-editor.ts
 │               │   ├── entry-editor.html
 │               │   └── entry-editor.scss
+│               ├── hero-banner/
+│               │   ├── hero-banner.ts
+│               │   ├── hero-banner.html
+│               │   └── hero-banner.scss
 │               ├── tag-chips/
 │               │   ├── tag-chips.ts
 │               │   ├── tag-chips.html
@@ -80,17 +90,23 @@ daily-reflection-app/
 │                   ├── loading.html
 │                   └── loading.scss
 └── supabase/
+    ├── config.toml                 ← verify_jwt = false per function
     └── functions/
+        ├── deno.json
+        ├── _shared/
+        │   └── rate-limit.ts       ← shared daily AI call limiter
         ├── reflect-deeper/
         │   └── index.ts
-        └── weekly-summary/
+        ├── weekly-summary/
+        │   └── index.ts
+        └── delete-account/
             └── index.ts
 ```
 
 ## Supabase SQL
 
 ```sql
--- 1. TABLE
+-- 1. entries TABLE
 CREATE TABLE public.entries (
   id          uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id     uuid        NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -136,14 +152,32 @@ WITH CHECK (auth.uid() = user_id);
 CREATE POLICY "delete_own_entries"
 ON public.entries FOR DELETE
 USING (auth.uid() = user_id);
+
+-- 4. Entry flood protection (max 1000 entries per user)
+CREATE POLICY "limit_entry_count"
+ON public.entries FOR INSERT
+WITH CHECK (
+  (SELECT COUNT(*) FROM public.entries WHERE user_id = auth.uid()) < 1000
+);
+
+-- 5. ai_usage TABLE (per-user daily AI call tracking)
+CREATE TABLE public.ai_usage (
+  user_id    uuid  NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  usage_date date  NOT NULL,
+  call_count int   NOT NULL DEFAULT 0,
+  PRIMARY KEY (user_id, usage_date)
+);
 ```
 
 ## Edge Functions
 
 | Function | Route | What it does |
 |---|---|---|
-| `reflect-deeper` | `POST /functions/v1/reflect-deeper` | Accepts a single `Entry`, validates JWT, calls Claude with the Reflect Deeper prompt, returns `ReflectDeeperResponse` JSON |
-| `weekly-summary` | `POST /functions/v1/weekly-summary` | Accepts up to 7 `Entry` objects, validates JWT, calls Claude with the Weekly Summary prompt, returns `WeeklySummaryResponse` JSON |
+| `reflect-deeper` | `POST /functions/v1/reflect-deeper` | Accepts a single `Entry`, verifies JWT, checks rate limit, calls Claude, returns `ReflectDeeperResponse` |
+| `weekly-summary` | `POST /functions/v1/weekly-summary` | Accepts up to 7 `Entry` objects, verifies JWT, checks rate limit, calls Claude, returns `WeeklySummaryResponse` |
+| `delete-account` | `POST /functions/v1/delete-account` | Verifies JWT, calls `admin.deleteUser()` which cascade-deletes all user data |
+
+All functions set `verify_jwt = false` in `supabase/config.toml` and handle JWT verification internally via `supabase.auth.getUser()`.
 
 ## npm Packages to Install
 
@@ -156,18 +190,28 @@ ng add @angular/material
 
 # Charting for stats word-count trend
 npm install ng2-charts chart.js
+
+# Zone.js (Angular 21 scaffolds without it; required for async change detection)
+npm install zone.js
 ```
 
 ### Supabase CLI (edge function deployment)
 
 ```bash
-npm install -g supabase
+# Install via Homebrew (npm install -g is not supported)
+brew install supabase/tap/supabase
 
-# Deploy functions
+# Log in and link
+supabase login
+supabase link --project-ref your-project-id
+
+# Deploy all functions
 supabase functions deploy reflect-deeper
 supabase functions deploy weekly-summary
+supabase functions deploy delete-account
 
 # Set secrets
 supabase secrets set ANTHROPIC_API_KEY=sk-ant-...
-supabase secrets set CLAUDE_MODEL=claude-3-5-sonnet-latest
+supabase secrets set CORS_ORIGIN=https://your-domain.com
+supabase secrets set DAILY_AI_LIMIT=10   # optional; defaults to 10
 ```

@@ -9,15 +9,17 @@ A private journaling app with AI-powered reflection. Write daily entries, track 
 - **Stats** — 14-day streak, avg mood, top tags, word-count chart
 - **Reflect Deeper** — AI analysis of a single entry: follow-up questions, reframes, micro-actions
 - **Weekly Summary** — AI synthesis of the last 7 days: themes, wins, stressors, suggested experiments
+- **Settings** — export all entries as CSV, delete all entries, or delete your account
 
 ## Tech Stack
 
 | Layer | Technology |
 |---|---|
-| Frontend | Angular 21 + Angular Material (M3) |
+| Frontend | Angular 21 + Angular Material (M3), standalone components, signals |
 | Backend | Supabase (Postgres + Auth + Edge Functions) |
 | AI | Claude via Anthropic API (called from Edge Functions only) |
 | Charts | Chart.js via ng2-charts |
+| Hosting | Cloudflare Pages (auto-deploy on push to main) |
 
 ---
 
@@ -26,7 +28,7 @@ A private journaling app with AI-powered reflection. Write daily entries, track 
 ### 1. Prerequisites
 
 - Node.js 20+
-- [Supabase CLI](https://supabase.com/docs/guides/cli)
+- [Supabase CLI](https://supabase.com/docs/guides/cli) — install via Homebrew: `brew install supabase/tap/supabase`
 - A [Supabase](https://supabase.com) project
 - An [Anthropic API key](https://console.anthropic.com)
 
@@ -43,7 +45,7 @@ npm install
 In your Supabase project dashboard, open the **SQL Editor** and run the following:
 
 ```sql
--- 1. Table
+-- 1. entries table
 CREATE TABLE public.entries (
   id          uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id     uuid        NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -89,6 +91,21 @@ WITH CHECK (auth.uid() = user_id);
 CREATE POLICY "delete_own_entries"
 ON public.entries FOR DELETE
 USING (auth.uid() = user_id);
+
+-- 4. Entry flood protection (max 1000 entries per user)
+CREATE POLICY "limit_entry_count"
+ON public.entries FOR INSERT
+WITH CHECK (
+  (SELECT COUNT(*) FROM public.entries WHERE user_id = auth.uid()) < 1000
+);
+
+-- 5. AI usage tracking table
+CREATE TABLE public.ai_usage (
+  user_id    uuid  NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  usage_date date  NOT NULL,
+  call_count int   NOT NULL DEFAULT 0,
+  PRIMARY KEY (user_id, usage_date)
+);
 ```
 
 In **Authentication → Providers**, make sure **Email** is enabled.
@@ -127,28 +144,43 @@ Open [http://localhost:4200](http://localhost:4200). Sign up for an account and 
 
 ## Deploying Edge Functions
 
-The AI features require two Supabase Edge Functions. Deploy them with the Supabase CLI:
+The AI features require three Supabase Edge Functions. Deploy them with the Supabase CLI:
 
 ```bash
 # Log in and link to your project
 supabase login
 supabase link --project-ref your-project-id
 
-# Deploy both functions
+# Deploy all functions
 supabase functions deploy reflect-deeper
 supabase functions deploy weekly-summary
+supabase functions deploy delete-account
 
 # Set secrets
 supabase secrets set ANTHROPIC_API_KEY=sk-ant-...
+supabase secrets set CORS_ORIGIN=https://your-domain.com
+supabase secrets set DAILY_AI_LIMIT=10   # optional; defaults to 10
 ```
 
-The `CLAUDE_MODEL` secret is optional — the functions default to `claude-sonnet-4-6`.
+> **Note:** `DAILY_AI_LIMIT` can be updated in the Supabase dashboard without redeploying functions.
 
-### Disable "Verify JWT with legacy secret"
+### JWT verification
 
-After deploying, go to **Edge Functions** in the Supabase dashboard and open each function. Find the **"Verify JWT with legacy secret"** toggle and turn it **off** for both `reflect-deeper` and `weekly-summary`.
+The functions set `verify_jwt = false` in `supabase/config.toml` and handle JWT verification internally via `supabase.auth.getUser()`. This is required because Supabase's legacy JWT toggle only accepts the anon key, not user session tokens.
 
-This setting blocks requests that don't use the anon key as their JWT, which conflicts with sending the user's session token. The functions handle their own JWT verification internally via `supabase.auth.getUser()`, so the platform-level toggle is not needed.
+---
+
+## Deploying to Cloudflare Pages
+
+The app is deployed to Cloudflare Pages with the following settings:
+
+| Setting | Value |
+|---|---|
+| Build command | `echo "export const environment = {production:true,supabaseUrl:'$SUPABASE_URL',supabaseAnonKey:'$SUPABASE_ANON_KEY'};" > src/environments/environment.ts && npx ng build && cp dist/daily-reflection-app/browser/index.html dist/daily-reflection-app/browser/404.html` |
+| Output directory | `dist/daily-reflection-app/browser` |
+| Environment variables | `SUPABASE_URL`, `SUPABASE_ANON_KEY` |
+
+The build command generates `environment.ts` from Cloudflare environment variables at build time, so no secrets are stored in the repository. The `404.html` copy enables Angular's client-side routing on Cloudflare Pages.
 
 ---
 
@@ -158,6 +190,4 @@ This setting blocks requests that don't use the anon key as their JWT, which con
 npm run build
 ```
 
-Output is in `dist/daily-reflection-app/browser`. Deploy to any static host (Netlify, Vercel, etc.).
-
-For production, create `src/environments/environment.prod.ts` with `production: true` and your live Supabase credentials.
+Output is in `dist/daily-reflection-app/browser`. Deploy to any static host.

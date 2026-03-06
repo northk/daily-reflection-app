@@ -8,7 +8,7 @@ Shows how every component, service, and external system relates to each other.
 graph TD
   subgraph Angular ["Angular App (Browser)"]
     subgraph Shell ["App Shell"]
-      AC[AppComponent]
+      AC[App]
       AG[AuthGuard]
     end
 
@@ -18,12 +18,14 @@ graph TD
       ELC[EntryListComponent]
       EDC[EntryDetailComponent]
       SC[StatsComponent]
+      SET[SettingsComponent]
     end
 
     subgraph Shared ["Shared Components"]
       EE[EntryEditorComponent]
       TCC[TagChipsComponent]
       LoadC[LoadingComponent]
+      HB[HeroBannerComponent]
     end
 
     subgraph Services ["Core Services"]
@@ -36,19 +38,20 @@ graph TD
 
   subgraph Supabase ["Supabase (Backend)"]
     SA[Auth]
-    SD[(Postgres + RLS)]
+    SD[(Postgres + RLS\nentries · ai_usage)]
 
     subgraph EdgeFns ["Edge Functions - Deno"]
       RD[reflect-deeper]
       WS[weekly-summary]
+      DA[delete-account]
     end
   end
 
   CLAUDE[Claude API\nAnthropic]
 
   %% App Shell
-  AG -->|session check| AS
-  AC -->|user state / logout| AS
+  AG -->|session signal check| AS
+  AC -->|user signal / logout| AS
 
   %% Feature → Services
   LC -->|signIn / signUp| AS
@@ -59,10 +62,17 @@ graph TD
   EDC -->|reflectDeeper| AIS
   SC -->|getEntriesInRange| ES
   SC -->|weeklySummary| AIS
+  SET -->|downloadEntriesAsCsv · deleteAllEntries| ES
+  SET -->|deleteAccount| AS
 
   %% Feature → Shared
   TC -->|renders| EE
+  TC -->|renders| HB
   EDC -->|renders| EE
+  EDC -->|renders| HB
+  ELC -->|renders| HB
+  SC -->|renders| HB
+  SET -->|renders| HB
   EE -->|renders| TCC
   EE -->|renders| LoadC
 
@@ -78,12 +88,17 @@ graph TD
   %% AIService → Edge Functions
   AIS -->|POST + Bearer JWT| RD
   AIS -->|POST + Bearer JWT| WS
+  AS -->|POST + Bearer JWT| DA
 
   %% Edge Functions → Supabase + Claude
   RD -->|verify JWT| SA
+  RD -->|track usage| SD
   RD -->|prompt| CLAUDE
   WS -->|verify JWT| SA
+  WS -->|track usage| SD
   WS -->|prompt| CLAUDE
+  DA -->|verify JWT| SA
+  DA -->|admin.deleteUser| SA
 ```
 
 ---
@@ -108,10 +123,11 @@ sequenceDiagram
   SS->>SA: POST /auth/v1/token
   SA-->>SS: session + JWT
   SS-->>AS: session
+  AS->>AS: _session.set(session)
   AS-->>LC: success
   LC->>Router: navigate('/today')
   Router->>AG: canActivate()
-  AG->>AS: session$ (observable)
+  AG->>AS: session signal (read)
   AS-->>AG: session exists → true
   AG-->>Router: allow
   Router-->>User: render TodayComponent
@@ -140,6 +156,8 @@ sequenceDiagram
   AIS->>EF: POST /functions/v1/reflect-deeper\nBody: {entry}\nHeader: Authorization: Bearer JWT
   EF->>SA: auth.getUser(JWT)
   SA-->>EF: user record or 401
+  EF->>SA: check ai_usage (rate limit)
+  SA-->>EF: call_count < limit → proceed
   EF->>CL: messages: [systemPrompt, userPrompt + entry JSON]
   CL-->>EF: raw JSON text
   EF-->>AIS: 200 { follow_up_questions, reframes, micro_actions }
@@ -154,7 +172,7 @@ sequenceDiagram
 | Service | Owns | Talks to |
 |---|---|---|
 | `SupabaseService` | Supabase JS client singleton | Supabase Auth + Postgres |
-| `AuthService` | Session state, `session$`, `user$` observables | `SupabaseService` |
+| `AuthService` | Session signal, computed user signal | `SupabaseService` |
 | `EntriesService` | All CRUD + query methods for entries | `SupabaseService` |
 | `AIService` | Edge function HTTP calls | `AuthService` (JWT), Edge Functions |
 | `AuthGuard` | Route protection | `AuthService` |
@@ -165,3 +183,4 @@ sequenceDiagram
 - **AIService** never calls Claude directly — always goes through an Edge Function.
 - **Edge Functions** are the only layer that holds `ANTHROPIC_API_KEY`.
 - **RLS policies** enforce that every Postgres query is scoped to `auth.uid() = user_id`.
+- **AuthService** state is held in an Angular signal — no RxJS Observables in the component layer.
