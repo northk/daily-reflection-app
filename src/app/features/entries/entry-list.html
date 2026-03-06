@@ -20,13 +20,13 @@
     }
   </div>
 
-  @if (loading) {
+  @if (loading()) {
     <app-loading />
-  } @else if (entries.length === 0) {
+  } @else if (entries().length === 0) {
     <p class="empty-state">No entries found. Start writing today!</p>
   } @else {
     <div class="entry-cards">
-      @for (entry of entries; track entry.id) {
+      @for (entry of entries(); track entry.id) {
         <mat-card class="entry-card" [routerLink]="['/entries', entry.id]">
           <mat-card-header>
             <mat-card-title>{{ entry.title || '(No title)' }}</mat-card-title>

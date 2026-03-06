@@ -1,29 +1,24 @@
-import { Injectable } from '@angular/core';
-import type { Session, User } from '@supabase/supabase-js';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Injectable, signal, computed } from '@angular/core';
+import type { Session } from '@supabase/supabase-js';
 import { SupabaseService } from '@core/services/supabase';
 import { environment } from '@env/environment';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private sessionSubject = new BehaviorSubject<Session | null>(null);
+  private _session = signal<Session | null>(null);
 
-  session$: Observable<Session | null> = this.sessionSubject.asObservable();
-
-  user$: Observable<User | null> = this.session$.pipe(
-    map(session => session?.user ?? null)
-  );
+  readonly session = this._session.asReadonly();
+  readonly user = computed(() => this._session()?.user ?? null);
 
   constructor(private supabase: SupabaseService) {
     // Hydrate with the persisted session on startup
     this.supabase.client.auth.getSession().then(({ data }) => {
-      this.sessionSubject.next(data.session);
+      this._session.set(data.session);
     });
 
     // Keep in sync with auth state changes (sign-in, sign-out, token refresh)
     this.supabase.client.auth.onAuthStateChange((_event, session) => {
-      this.sessionSubject.next(session);
+      this._session.set(session);
     });
   }
 

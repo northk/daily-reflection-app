@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
@@ -30,19 +30,18 @@ import { HeroBannerComponent } from '@shared/components/hero-banner/hero-banner'
   templateUrl: './stats.html',
   styleUrl: './stats.scss',
 })
-export class StatsComponent implements OnInit {
-  loading = true;
-  streak = 0;
-  entryCount = 0;
-  averageMood: number | null = null;
-  topTags: Array<{ tag: string; count: number }> = [];
-  summarizing = false;
-  summaryResult: WeeklySummaryResponse | null = null;
-
-  chartData: ChartData<'bar'> = {
+export class StatsComponent {
+  readonly loading = signal(true);
+  readonly streak = signal(0);
+  readonly entryCount = signal(0);
+  readonly averageMood = signal<number | null>(null);
+  readonly topTags = signal<Array<{ tag: string; count: number }>>([]);
+  readonly summarizing = signal(false);
+  readonly summaryResult = signal<WeeklySummaryResponse | null>(null);
+  readonly chartData = signal<ChartData<'bar'>>({
     labels: [],
     datasets: [{ data: [], label: 'Words' }],
-  };
+  });
 
   readonly chartOptions: ChartOptions<'bar'> = {
     responsive: true,
@@ -67,15 +66,13 @@ export class StatsComponent implements OnInit {
     private entriesService: EntriesService,
     private aiService: AiService,
     private snackBar: MatSnackBar,
-  ) {}
-
-  ngOnInit(): void {
+  ) {
     this.loadStats();
   }
 
   async onWeeklySummary(): Promise<void> {
-    this.summarizing = true;
-    this.summaryResult = null;
+    this.summarizing.set(true);
+    this.summaryResult.set(null);
     try {
       const startDate = this.subtractDays(this.todayDate, 6); // last 7 days
       const entries = await this.entriesService.getEntriesInRange(startDate, this.todayDate);
@@ -83,12 +80,12 @@ export class StatsComponent implements OnInit {
         this.snackBar.open('No entries in the last 7 days to summarize.', 'Dismiss', { duration: 4000 });
         return;
       }
-      this.summaryResult = await this.aiService.weeklySummary(entries);
+      this.summaryResult.set(await this.aiService.weeklySummary(entries));
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Could not generate summary. Please try again.';
       this.snackBar.open(msg, 'Dismiss', { duration: 4000 });
     } finally {
-      this.summarizing = false;
+      this.summarizing.set(false);
     }
   }
 
@@ -96,15 +93,15 @@ export class StatsComponent implements OnInit {
     try {
       const startDate = this.subtractDays(this.todayDate, 13); // 14 days including today
       const entries = await this.entriesService.getEntriesInRange(startDate, this.todayDate);
-      this.entryCount = entries.length;
-      this.streak = this.computeStreak(entries);
-      this.averageMood = this.computeAverageMood(entries);
-      this.topTags = this.computeTopTags(entries);
-      this.chartData = this.buildChartData(entries);
+      this.entryCount.set(entries.length);
+      this.streak.set(this.computeStreak(entries));
+      this.averageMood.set(this.computeAverageMood(entries));
+      this.topTags.set(this.computeTopTags(entries));
+      this.chartData.set(this.buildChartData(entries));
     } catch {
       this.snackBar.open('Could not load stats.', 'Dismiss', { duration: 4000 });
     } finally {
-      this.loading = false;
+      this.loading.set(false);
     }
   }
 

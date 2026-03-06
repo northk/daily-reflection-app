@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatButton } from '@angular/material/button';
@@ -26,11 +26,11 @@ import { HeroBannerComponent } from '@shared/components/hero-banner/hero-banner'
   styleUrl: './settings.scss',
 })
 export class SettingsComponent {
-  downloadingCsv = false;
-  deletingEntries = false;
-  deletingAccount = false;
-  confirmDeleteEntries = false;
-  confirmDeleteAccount = false;
+  readonly downloadingCsv = signal(false);
+  readonly deletingEntries = signal(false);
+  readonly deletingAccount = signal(false);
+  readonly confirmDeleteEntries = signal(false);
+  readonly confirmDeleteAccount = signal(false);
 
   constructor(
     private entriesService: EntriesService,
@@ -40,37 +40,37 @@ export class SettingsComponent {
   ) {}
 
   async onDownloadCsv(): Promise<void> {
-    this.downloadingCsv = true;
+    this.downloadingCsv.set(true);
     try {
       await this.entriesService.downloadEntriesAsCsv();
     } catch {
       this.snackBar.open('Export failed. Please try again.', 'Dismiss', { duration: 4000 });
     } finally {
-      this.downloadingCsv = false;
+      this.downloadingCsv.set(false);
     }
   }
 
   async onDeleteEntries(): Promise<void> {
-    this.deletingEntries = true;
+    this.deletingEntries.set(true);
     try {
       await this.entriesService.deleteAllEntries();
       this.snackBar.open('All entries deleted.', 'OK', { duration: 4000 });
-      this.confirmDeleteEntries = false;
+      this.confirmDeleteEntries.set(false);
     } catch {
       this.snackBar.open('Delete failed. Please try again.', 'Dismiss', { duration: 4000 });
     } finally {
-      this.deletingEntries = false;
+      this.deletingEntries.set(false);
     }
   }
 
   async onDeleteAccount(): Promise<void> {
-    this.deletingAccount = true;
+    this.deletingAccount.set(true);
     try {
       await this.authService.deleteAccount();
       this.router.navigateByUrl('/login');
     } catch {
       this.snackBar.open('Account deletion failed. Please try again.', 'Dismiss', { duration: 4000 });
-      this.deletingAccount = false;
+      this.deletingAccount.set(false);
     }
   }
 }

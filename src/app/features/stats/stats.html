@@ -4,41 +4,41 @@
   <h1 class="stats-title">Your Stats</h1>
   <p class="stats-subtitle">Last 14 days</p>
 
-  @if (loading) {
+  @if (loading()) {
     <app-loading />
   } @else {
 
     <div class="stat-cards">
       <mat-card class="stat-card">
         <mat-card-content>
-          <div class="stat-value">{{ streak }}</div>
+          <div class="stat-value">{{ streak() }}</div>
           <div class="stat-label">Day Streak</div>
         </mat-card-content>
       </mat-card>
 
       <mat-card class="stat-card">
         <mat-card-content>
-          <div class="stat-value">{{ entryCount }}</div>
+          <div class="stat-value">{{ entryCount() }}</div>
           <div class="stat-label">Entries</div>
         </mat-card-content>
       </mat-card>
 
       <mat-card class="stat-card">
         <mat-card-content>
-          <div class="stat-value">{{ averageMood ?? '–' }}</div>
+          <div class="stat-value">{{ averageMood() ?? '–' }}</div>
           <div class="stat-label">Avg Mood</div>
         </mat-card-content>
       </mat-card>
     </div>
 
-    @if (topTags.length > 0) {
+    @if (topTags().length > 0) {
       <mat-card class="section-card">
         <mat-card-header>
           <mat-card-title>Top Tags</mat-card-title>
         </mat-card-header>
         <mat-card-content>
           <div class="tag-list">
-            @for (item of topTags; track item.tag) {
+            @for (item of topTags(); track item.tag) {
               <span class="tag-badge">
                 {{ item.tag }}<span class="tag-count"> ×{{ item.count }}</span>
               </span>
@@ -56,7 +56,7 @@
         <div class="chart-container">
           <canvas baseChart
             [type]="'bar'"
-            [data]="chartData"
+            [data]="chartData()"
             [options]="chartOptions"
           ></canvas>
         </div>
@@ -68,7 +68,7 @@
         <mat-card-title>Weekly Summary</mat-card-title>
       </mat-card-header>
       <mat-card-content>
-        @if (summarizing) {
+        @if (summarizing()) {
           <app-loading [diameter]="32" />
         } @else {
           <button mat-stroked-button (click)="onWeeklySummary()">
@@ -77,37 +77,37 @@
           </button>
         }
 
-        @if (summaryResult) {
+        @if (summaryResult()) {
           <div class="summary-result">
             <p class="summary-tone">
-              Tone: <strong>{{ summaryResult.tone.overall }}</strong>
-              &nbsp;·&nbsp; Trend: <strong>{{ summaryResult.tone.trend }}</strong>
+              Tone: <strong>{{ summaryResult()!.tone.overall }}</strong>
+              &nbsp;·&nbsp; Trend: <strong>{{ summaryResult()!.tone.trend }}</strong>
             </p>
 
             <p class="ai-section-label">Themes</p>
             <ul class="ai-items">
-              @for (t of summaryResult.themes; track $index) {
+              @for (t of summaryResult()!.themes; track $index) {
                 <li>{{ t }}</li>
               }
             </ul>
 
             <p class="ai-section-label">Wins</p>
             <ul class="ai-items">
-              @for (w of summaryResult.wins; track $index) {
+              @for (w of summaryResult()!.wins; track $index) {
                 <li>{{ w }}</li>
               }
             </ul>
 
             <p class="ai-section-label">Stressors</p>
             <ul class="ai-items">
-              @for (s of summaryResult.stressors; track $index) {
+              @for (s of summaryResult()!.stressors; track $index) {
                 <li>{{ s }}</li>
               }
             </ul>
 
             <p class="ai-section-label">Suggested Experiments</p>
             <ul class="ai-items">
-              @for (e of summaryResult.suggested_experiments; track $index) {
+              @for (e of summaryResult()!.suggested_experiments; track $index) {
                 <li>{{ e }}</li>
               }
             </ul>

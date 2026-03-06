@@ -1,7 +1,4 @@
-import { Component, OnInit } from '@angular/core';
-import { firstValueFrom } from 'rxjs';
-import { filter } from 'rxjs/operators';
-import type { User } from '@supabase/supabase-js';
+import { Component, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatButton } from '@angular/material/button';
@@ -34,13 +31,13 @@ import { HeroBannerComponent } from '@shared/components/hero-banner/hero-banner'
   templateUrl: './entry-detail.html',
   styleUrl: './entry-detail.scss',
 })
-export class EntryDetailComponent implements OnInit {
-  entry: Entry | null = null;
-  loading = true;
-  saving = false;
-  reflecting = false;
-  reflectResult: ReflectDeeperResponse | null = null;
-  showDeleteConfirm = false;
+export class EntryDetailComponent {
+  readonly entry = signal<Entry | null>(null);
+  readonly loading = signal(true);
+  readonly saving = signal(false);
+  readonly reflecting = signal(false);
+  readonly reflectResult = signal<ReflectDeeperResponse | null>(null);
+  readonly showDeleteConfirm = signal(false);
 
   private readonly id: string | null;
 
@@ -53,24 +50,19 @@ export class EntryDetailComponent implements OnInit {
     private snackBar: MatSnackBar,
   ) {
     this.id = this.route.snapshot.paramMap.get('id');
-  }
-
-  ngOnInit(): void {
     if (!this.id) {
       this.router.navigate(['/entries']);
-      return;
+    } else {
+      this.loadEntry();
     }
-    this.loadEntry();
   }
 
   async onSave(formValue: Partial<Entry>): Promise<void> {
-    const entry = this.entry;
+    const entry = this.entry();
     if (!entry) return;
-    this.saving = true;
+    this.saving.set(true);
     try {
-      const user = await firstValueFrom(
-        this.auth.user$.pipe(filter((u): u is User => u !== null)),
-      );
+      const user = this.auth.user()!;
       const payload: Entry = {
         id: entry.id,
         user_id: user.id,
@@ -82,36 +74,36 @@ export class EntryDetailComponent implements OnInit {
         created_at: entry.created_at,
         updated_at: entry.updated_at,
       };
-      this.entry = await this.entriesService.upsertEntry(payload);
+      this.entry.set(await this.entriesService.upsertEntry(payload));
       this.snackBar.open('Entry saved.', undefined, { duration: 2000 });
     } catch {
       this.snackBar.open('Could not save. Please try again.', 'Dismiss', { duration: 4000 });
     } finally {
-      this.saving = false;
+      this.saving.set(false);
     }
   }
 
   async onReflectDeeper(): Promise<void> {
-    const entry = this.entry;
+    const entry = this.entry();
     if (!entry) return;
-    this.reflecting = true;
-    this.reflectResult = null;
+    this.reflecting.set(true);
+    this.reflectResult.set(null);
     try {
-      this.reflectResult = await this.aiService.reflectDeeper(entry);
+      this.reflectResult.set(await this.aiService.reflectDeeper(entry));
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Could not generate reflection. Please try again.';
       this.snackBar.open(msg, 'Dismiss', { duration: 4000 });
     } finally {
-      this.reflecting = false;
+      this.reflecting.set(false);
     }
   }
 
   onDeleteRequest(): void {
-    this.showDeleteConfirm = true;
+    this.showDeleteConfirm.set(true);
   }
 
   onDeleteCancel(): void {
-    this.showDeleteConfirm = false;
+    this.showDeleteConfirm.set(false);
   }
 
   async onDeleteConfirm(): Promise<void> {
@@ -122,21 +114,21 @@ export class EntryDetailComponent implements OnInit {
       this.router.navigate(['/entries']);
     } catch {
       this.snackBar.open('Could not delete. Please try again.', 'Dismiss', { duration: 4000 });
-      this.showDeleteConfirm = false;
+      this.showDeleteConfirm.set(false);
     }
   }
 
   private async loadEntry(): Promise<void> {
     try {
-      this.entry = await this.entriesService.getEntryById(this.id!);
-      if (!this.entry) {
+      this.entry.set(await this.entriesService.getEntryById(this.id!));
+      if (!this.entry()) {
         this.snackBar.open('Entry not found.', 'Dismiss', { duration: 4000 });
         this.router.navigate(['/entries']);
       }
     } catch {
       this.snackBar.open('Could not load entry.', 'Dismiss', { duration: 4000 });
     } finally {
-      this.loading = false;
+      this.loading.set(false);
     }
   }
 }

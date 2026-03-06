@@ -1,7 +1,4 @@
-import { Component, OnInit } from '@angular/core';
-import { firstValueFrom } from 'rxjs';
-import { filter } from 'rxjs/operators';
-import type { User } from '@supabase/supabase-js';
+import { Component, signal } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
@@ -32,12 +29,12 @@ import { HeroBannerComponent } from '@shared/components/hero-banner/hero-banner'
   templateUrl: './today.html',
   styleUrl: './today.scss',
 })
-export class TodayComponent implements OnInit {
-  entry: Entry | null = null;
-  loading = true;
-  saving = false;
-  reflecting = false;
-  reflectResult: ReflectDeeperResponse | null = null;
+export class TodayComponent {
+  readonly entry = signal<Entry | null>(null);
+  readonly loading = signal(true);
+  readonly saving = signal(false);
+  readonly reflecting = signal(false);
+  readonly reflectResult = signal<ReflectDeeperResponse | null>(null);
 
   // Use local date parts to avoid UTC-vs-local timezone shift
   readonly todayDate: string = this.getLocalDateString();
@@ -47,7 +44,9 @@ export class TodayComponent implements OnInit {
     private auth: AuthService,
     private aiService: AiService,
     private snackBar: MatSnackBar,
-  ) {}
+  ) {
+    this.loadEntry();
+  }
 
   get todayLabel(): string {
     const [y, m, d] = this.todayDate.split('-').map(Number);
@@ -59,58 +58,52 @@ export class TodayComponent implements OnInit {
     });
   }
 
-  ngOnInit(): void {
-    this.loadEntry();
-  }
-
   async onSave(formValue: Partial<Entry>): Promise<void> {
-    this.saving = true;
+    this.saving.set(true);
     try {
-      const user = await firstValueFrom(
-        this.auth.user$.pipe(filter((u): u is User => u !== null)),
-      );
+      const user = this.auth.user()!;
       const payload: Entry = {
-        id: this.entry?.id,
+        id: this.entry()?.id,
         user_id: user.id,
         entry_date: this.todayDate,
         title: formValue.title ?? null,
         body: formValue.body ?? '',
         mood: formValue.mood ?? null,
         tags: formValue.tags ?? [],
-        created_at: this.entry?.created_at,
-        updated_at: this.entry?.updated_at,
+        created_at: this.entry()?.created_at,
+        updated_at: this.entry()?.updated_at,
       };
-      this.entry = await this.entries.upsertEntry(payload);
+      this.entry.set(await this.entries.upsertEntry(payload));
       this.snackBar.open('Entry saved.', undefined, { duration: 2000 });
     } catch {
       this.snackBar.open('Could not save. Please try again.', 'Dismiss', { duration: 4000 });
     } finally {
-      this.saving = false;
+      this.saving.set(false);
     }
   }
 
   async onReflectDeeper(): Promise<void> {
-    const entry = this.entry;
+    const entry = this.entry();
     if (!entry) return;
-    this.reflecting = true;
-    this.reflectResult = null;
+    this.reflecting.set(true);
+    this.reflectResult.set(null);
     try {
-      this.reflectResult = await this.aiService.reflectDeeper(entry);
+      this.reflectResult.set(await this.aiService.reflectDeeper(entry));
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Could not generate reflection. Please try again.';
       this.snackBar.open(msg, 'Dismiss', { duration: 4000 });
     } finally {
-      this.reflecting = false;
+      this.reflecting.set(false);
     }
   }
 
   private async loadEntry(): Promise<void> {
     try {
-      this.entry = await this.entries.getEntryByDate(this.todayDate);
+      this.entry.set(await this.entries.getEntryByDate(this.todayDate));
     } catch {
       this.snackBar.open('Could not load today\'s entry.', 'Dismiss', { duration: 4000 });
     } finally {
-      this.loading = false;
+      this.loading.set(false);
     }
   }
 

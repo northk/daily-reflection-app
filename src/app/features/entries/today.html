@@ -6,18 +6,18 @@
     <p class="today-date">{{ todayLabel }}</p>
   </header>
 
-  @if (loading) {
+  @if (loading()) {
     <app-loading />
   } @else {
     <app-entry-editor
-      [entry]="entry"
-      [saving]="saving"
+      [entry]="entry()"
+      [saving]="saving()"
       (save)="onSave($event)"
     />
 
-    @if (entry?.id) {
+    @if (entry()?.id) {
       <div class="ai-section">
-        @if (reflecting) {
+        @if (reflecting()) {
           <app-loading [diameter]="32" />
         } @else {
           <button mat-stroked-button (click)="onReflectDeeper()">
@@ -26,7 +26,7 @@
           </button>
         }
 
-        @if (reflectResult) {
+        @if (reflectResult()) {
           <mat-card class="ai-result-card">
             <mat-card-header>
               <mat-card-title>Reflection</mat-card-title>
@@ -34,19 +34,19 @@
             <mat-card-content>
               <p class="ai-section-label">Follow-up Questions</p>
               <ul class="ai-items">
-                @for (q of reflectResult.follow_up_questions; track $index) {
+                @for (q of reflectResult()!.follow_up_questions; track $index) {
                   <li>{{ q }}</li>
                 }
               </ul>
               <p class="ai-section-label">Reframes</p>
               <ul class="ai-items">
-                @for (r of reflectResult.reframes; track $index) {
+                @for (r of reflectResult()!.reframes; track $index) {
                   <li>{{ r }}</li>
                 }
               </ul>
               <p class="ai-section-label">Micro-Actions</p>
               <ul class="ai-items">
-                @for (a of reflectResult.micro_actions; track $index) {
+                @for (a of reflectResult()!.micro_actions; track $index) {
                   <li>{{ a }}</li>
                 }
               </ul>

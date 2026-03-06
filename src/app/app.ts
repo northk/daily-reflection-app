@@ -1,6 +1,5 @@
 import { Component, inject } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatToolbar } from '@angular/material/toolbar';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
@@ -15,7 +14,7 @@ import { AuthService } from '@core/services/auth';
 export class App {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
-  readonly user = toSignal(this.auth.user$);
+  readonly user = this.auth.user;
   readonly currentYear = new Date().getFullYear();
 
   async signOut(): Promise<void> {

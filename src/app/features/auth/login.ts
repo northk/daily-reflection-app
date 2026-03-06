@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { ReactiveFormsModule, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatCard, MatCardHeader, MatCardTitle, MatCardSubtitle, MatCardContent, MatCardActions } from '@angular/material/card';
@@ -23,10 +23,10 @@ import { LoadingComponent } from '@shared/components/loading/loading';
   styleUrl: './login.scss',
 })
 export class LoginComponent {
-  mode: 'signin' | 'signup' = 'signin';
-  loading = false;
-  error: string | null = null;
-  confirmationSent = false;
+  readonly mode = signal<'signin' | 'signup'>('signin');
+  readonly loading = signal(false);
+  readonly error = signal<string | null>(null);
+  readonly confirmationSent = signal(false);
 
   form = new FormGroup({
     email: new FormControl('', {
@@ -42,20 +42,20 @@ export class LoginComponent {
   constructor(private auth: AuthService, private router: Router) {}
 
   get isSignUp(): boolean {
-    return this.mode === 'signup';
+    return this.mode() === 'signup';
   }
 
   toggleMode(): void {
-    this.mode = this.isSignUp ? 'signin' : 'signup';
-    this.error = null;
-    this.confirmationSent = false;
+    this.mode.update(m => m === 'signup' ? 'signin' : 'signup');
+    this.error.set(null);
+    this.confirmationSent.set(false);
   }
 
   async onSubmit(): Promise<void> {
-    if (this.form.invalid || this.loading) return;
+    if (this.form.invalid || this.loading()) return;
 
-    this.loading = true;
-    this.error = null;
+    this.loading.set(true);
+    this.error.set(null);
 
     const { email, password } = this.form.getRawValue();
 
@@ -68,16 +68,16 @@ export class LoginComponent {
         if (token) {
           await this.router.navigate(['/today']);
         } else {
-          this.confirmationSent = true;
+          this.confirmationSent.set(true);
         }
       } else {
         await this.auth.signIn(email, password);
         await this.router.navigate(['/today']);
       }
     } catch (e: unknown) {
-      this.error = e instanceof Error ? e.message : 'Something went wrong. Please try again.';
+      this.error.set(e instanceof Error ? e.message : 'Something went wrong. Please try again.');
     } finally {
-      this.loading = false;
+      this.loading.set(false);
     }
   }
 }

@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit } from '@angular/core';
+import { Component, DestroyRef, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { merge } from 'rxjs';
@@ -38,9 +38,9 @@ import { HeroBannerComponent } from '@shared/components/hero-banner/hero-banner'
   templateUrl: './entry-list.html',
   styleUrl: './entry-list.scss',
 })
-export class EntryListComponent implements OnInit {
-  entries: Entry[] = [];
-  loading = true;
+export class EntryListComponent {
+  readonly entries = signal<Entry[]>([]);
+  readonly loading = signal(true);
 
   readonly searchControl = new FormControl('');
   readonly tagFilter = new FormControl<string | null>(null);
@@ -49,9 +49,7 @@ export class EntryListComponent implements OnInit {
     private entriesService: EntriesService,
     private destroyRef: DestroyRef,
     private snackBar: MatSnackBar,
-  ) {}
-
-  ngOnInit(): void {
+  ) {
     merge(this.searchControl.valueChanges, this.tagFilter.valueChanges)
       .pipe(debounceTime(300), takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.loadEntries());
@@ -75,16 +73,16 @@ export class EntryListComponent implements OnInit {
   }
 
   private async loadEntries(): Promise<void> {
-    this.loading = true;
+    this.loading.set(true);
     try {
-      this.entries = await this.entriesService.getEntries({
+      this.entries.set(await this.entriesService.getEntries({
         q: this.searchControl.value || undefined,
         tag: this.tagFilter.value || undefined,
-      });
+      }));
     } catch {
       this.snackBar.open('Could not load entries.', 'Dismiss', { duration: 4000 });
     } finally {
-      this.loading = false;
+      this.loading.set(false);
     }
   }
 }

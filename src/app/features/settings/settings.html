@@ -10,7 +10,7 @@
     </mat-card-header>
     <mat-card-content>
       <p class="section-desc">Download all your journal entries as a CSV file.</p>
-      @if (downloadingCsv) {
+      @if (downloadingCsv()) {
         <mat-spinner diameter="32" />
       } @else {
         <button mat-stroked-button (click)="onDownloadCsv()">Download entries (CSV)</button>
@@ -31,16 +31,16 @@
           <p class="danger-label">Delete all entries</p>
           <p class="danger-hint">Permanently removes every journal entry. Your account stays active.</p>
         </div>
-        @if (!confirmDeleteEntries) {
-          <button mat-stroked-button color="warn" (click)="confirmDeleteEntries = true">Delete all entries</button>
+        @if (!confirmDeleteEntries()) {
+          <button mat-stroked-button color="warn" (click)="confirmDeleteEntries.set(true)">Delete all entries</button>
         } @else {
           <div class="confirm-row">
             <span class="confirm-warning">Are you sure? This cannot be undone.</span>
-            @if (deletingEntries) {
+            @if (deletingEntries()) {
               <mat-spinner diameter="24" />
             } @else {
               <button mat-flat-button color="warn" (click)="onDeleteEntries()">Yes, delete all entries</button>
-              <button mat-button (click)="confirmDeleteEntries = false">Cancel</button>
+              <button mat-button (click)="confirmDeleteEntries.set(false)">Cancel</button>
             }
           </div>
         }
@@ -54,16 +54,16 @@
           <p class="danger-label">Delete account</p>
           <p class="danger-hint">Permanently deletes your account and all data. This cannot be reversed.</p>
         </div>
-        @if (!confirmDeleteAccount) {
-          <button mat-stroked-button color="warn" (click)="confirmDeleteAccount = true">Delete account</button>
+        @if (!confirmDeleteAccount()) {
+          <button mat-stroked-button color="warn" (click)="confirmDeleteAccount.set(true)">Delete account</button>
         } @else {
           <div class="confirm-row">
             <span class="confirm-warning">This will permanently delete your account and all entries.</span>
-            @if (deletingAccount) {
+            @if (deletingAccount()) {
               <mat-spinner diameter="24" />
             } @else {
               <button mat-flat-button color="warn" (click)="onDeleteAccount()">Yes, delete my account</button>
-              <button mat-button (click)="confirmDeleteAccount = false">Cancel</button>
+              <button mat-button (click)="confirmDeleteAccount.set(false)">Cancel</button>
             }
           </div>
         }

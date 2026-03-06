@@ -17,7 +17,7 @@
 
     <mat-card-content>
 
-      @if (confirmationSent) {
+      @if (confirmationSent()) {
         <p class="confirmation-msg">
           Check your email for a confirmation link, then sign in.
         </p>
@@ -47,11 +47,11 @@
             <mat-error>Password must be at least 6 characters.</mat-error>
           </mat-form-field>
 
-          @if (error) {
-            <p class="error-msg" role="alert">{{ error }}</p>
+          @if (error()) {
+            <p class="error-msg" role="alert">{{ error() }}</p>
           }
 
-          @if (loading) {
+          @if (loading()) {
             <app-loading [diameter]="32" />
           } @else {
             <button
