@@ -42,11 +42,14 @@ src/app/
     auth/
     entries/
     stats/
+    settings/
+    about/
   shared/
     components/
       entry-editor/
       tag-chips/
       loading/
+      hero-banner/
   app.routes.ts
 ```
 
@@ -74,6 +77,14 @@ Use path aliases from tsconfig, never relative imports.
 * Components show user-friendly errors.
 * Prefer Angular Material UI components.
 * Do not introduce global state libraries (NgRx etc.) unless asked.
+* **Use Angular Signals for all mutable component state** — `signal()` for writable state,
+  `computed()` for derived state. Do not use plain class properties for values that change
+  after construction. Pure presentational components with no state are exempt.
+* **No RxJS in the component layer** — the one exception is reactive form control streams
+  (e.g. `valueChanges` with `debounceTime`), which are the correct tool for that use case.
+  Use `takeUntilDestroyed(this.destroyRef)` to clean up any subscriptions.
+* **Load data from the constructor** — call async data-loading methods directly from the
+  constructor instead of implementing `OnInit`.
 
 ---
 
@@ -126,9 +137,10 @@ export interface WeeklySummaryResponse {
 signUp(email: string, password: string): Promise<void>
 signIn(email: string, password: string): Promise<void>
 signOut(): Promise<void>
-session$: Observable<Session | null>
-user$: Observable<User | null>
+session: Signal<Session | null>   // readonly signal
+user: Signal<User | null>         // computed signal
 getAccessToken(): Promise<string | null>
+deleteAccount(): Promise<void>
 ```
 
 ### entries.ts

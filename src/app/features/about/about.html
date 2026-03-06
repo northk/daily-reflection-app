@@ -1,0 +1,137 @@
+<app-hero-banner />
+<div class="about-page">
+
+  <h1 class="about-title">About Daily Reflection</h1>
+
+  <!-- What it does -->
+  <mat-card class="section-card">
+    <mat-card-header>
+      <mat-card-title>What it does</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <p class="body-text">
+        Daily Reflection is a private journaling app for capturing your thoughts, tracking your
+        mood, and reflecting more deeply on your experiences — with structured AI-powered insight
+        when you want it.
+      </p>
+      <ul class="feature-list">
+        <li><strong>Today</strong> — write your daily entry with an optional title, mood rating (1–10), and tags.</li>
+        <li><strong>Entries</strong> — browse, search, and filter all past entries by keyword or tag.</li>
+        <li><strong>Stats</strong> — 14-day streak, entry count, average mood, top tags, and a word-count chart.</li>
+        <li><strong>Reflect Deeper</strong> — AI analysis of a single entry: follow-up questions, reframes, and micro-actions.</li>
+        <li><strong>Weekly Summary</strong> — AI synthesis of your last 7 days: themes, wins, stressors, and suggested experiments.</li>
+        <li><strong>Settings</strong> — export all entries as CSV, delete your entries, or delete your account.</li>
+      </ul>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- How it was built -->
+  <mat-card class="section-card">
+    <mat-card-header>
+      <mat-card-title>How it was built</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <p class="body-text">
+        This app was built end-to-end using <strong>Claude Code</strong> — Anthropic's AI coding
+        assistant — with a modern, lightweight stack:
+      </p>
+      <ul class="feature-list">
+        <li>
+          <strong>Frontend:</strong> Angular 21 with standalone components and Angular Signals
+          for reactive state management. Angular Material provides the UI component library.
+        </li>
+        <li>
+          <strong>Backend:</strong> Supabase — a Postgres database with row-level security
+          (RLS) and built-in authentication. Every database query is enforced at the database
+          level to only return the current user's data.
+        </li>
+        <li>
+          <strong>AI:</strong> Claude (via Anthropic API), called exclusively from Supabase
+          Edge Functions running on Deno. The Angular app never contacts the Claude API
+          directly — all AI requests are proxied through server-side functions that verify
+          your identity and enforce rate limits before forwarding to Claude.
+        </li>
+        <li>
+          <strong>Hosting:</strong> Cloudflare Pages, with automatic deployment on every
+          commit to the main branch.
+        </li>
+      </ul>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- AI limitations -->
+  <mat-card class="section-card">
+    <mat-card-header>
+      <mat-card-title>AI features and limitations</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <p class="body-text">
+        The AI features use Claude to analyse your writing. A few important things to know:
+      </p>
+      <ul class="feature-list">
+        <li>
+          <strong>Daily rate limit:</strong> Each account can make up to 10 AI calls per day,
+          combined across Reflect Deeper and Weekly Summary. The limit resets at midnight UTC.
+        </li>
+        <li>
+          <strong>Weekly Summary context:</strong> Only your last 7 days of entries are sent to
+          Claude. Older entries are not included.
+        </li>
+        <li>
+          <strong>Reflect Deeper context:</strong> Only the single entry you are currently
+          viewing is sent to Claude — not your full history.
+        </li>
+        <li>
+          <strong>No memory between calls:</strong> Each AI call is independent. Claude has no
+          access to previous reflections or summaries.
+        </li>
+        <li>
+          <strong>Data leaves this app:</strong> When you use an AI feature, your entry text is
+          sent to Anthropic's API to generate a response. See
+          <a href="https://www.anthropic.com/privacy" target="_blank" rel="noopener">Anthropic's privacy policy</a>
+          for details on how that data is handled.
+        </li>
+      </ul>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- About the Author -->
+  <mat-card class="section-card">
+    <mat-card-header>
+      <mat-card-title>About the Author</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <p class="body-text">
+        Daily Reflection was created by
+        <a href="https://www.linkedin.com/in/northkrimsly/" target="_blank" rel="noopener">North Krimsly</a>.
+      </p>
+      <p class="body-text">
+        North is an engineering leader with 10+ years guiding high-performing software teams
+        delivering distributed SaaS platforms and improving engineering delivery across growing
+        organizations. Track record of building high-trust engineering cultures that enable
+        engineers to do their best work. Experienced in developer platforms, AI-assisted
+        development workflows, and cross-functional leadership across product, UX, and engineering.
+      </p>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Your data -->
+  <mat-card class="section-card">
+    <mat-card-header>
+      <mat-card-title>Your data</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <p class="body-text">
+        Your journal entries are stored in a private Supabase database. Row-level security
+        ensures only your account can read or modify your own entries — even a direct
+        database connection cannot return another user's data.
+      </p>
+      <p class="body-text">
+        You can export all your entries as a CSV file, delete every entry, or permanently
+        delete your account from the <a routerLink="/settings">Settings</a> page at any time.
+        Deleting your account removes all of your data immediately and cannot be undone.
+      </p>
+    </mat-card-content>
+  </mat-card>
+
+</div>
