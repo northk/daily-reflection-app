@@ -69,6 +69,7 @@ export class TodayComponent {
 
   async onSave(formValue: Partial<Entry>): Promise<void> {
     this.saving.set(true);
+    this.reflectResult.set(null);
     try {
       const user = this.auth.user()!;
       const payload: Entry = {

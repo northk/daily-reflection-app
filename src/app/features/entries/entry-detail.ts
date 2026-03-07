@@ -61,6 +61,7 @@ export class EntryDetailComponent {
     const entry = this.entry();
     if (!entry) return;
     this.saving.set(true);
+    this.reflectResult.set(null);
     try {
       const user = this.auth.user()!;
       const payload: Entry = {
