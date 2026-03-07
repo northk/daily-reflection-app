@@ -39,7 +39,8 @@ export class EntryEditorComponent implements OnChanges {
   });
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['entry'] && this.entry) {
+    const prev = changes['entry']?.previousValue as Entry | null;
+    if (this.entry && prev?.id !== this.entry.id) {
       this.form.patchValue({
         title: this.entry.title ?? '',
         body: this.entry.body,
