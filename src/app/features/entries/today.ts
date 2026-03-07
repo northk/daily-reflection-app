@@ -35,6 +35,7 @@ export class TodayComponent {
   readonly saving = signal(false);
   readonly reflecting = signal(false);
   readonly reflectResult = signal<ReflectDeeperResponse | null>(null);
+  readonly showDisclaimer = signal(false);
 
   // Use local date parts to avoid UTC-vs-local timezone shift
   readonly todayDate: string = this.getLocalDateString();
@@ -45,7 +46,15 @@ export class TodayComponent {
     private aiService: AiService,
     private snackBar: MatSnackBar,
   ) {
+    if (!localStorage.getItem('disclaimer-acknowledged')) {
+      this.showDisclaimer.set(true);
+    }
     this.loadEntry();
+  }
+
+  dismissDisclaimer(): void {
+    localStorage.setItem('disclaimer-acknowledged', '1');
+    this.showDisclaimer.set(false);
   }
 
   get todayLabel(): string {

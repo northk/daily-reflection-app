@@ -77,7 +77,15 @@ Deno.serve(async (req: Request) => {
       system:
         'You are a supportive, practical reflection coach. Be warm, non-clinical, non-judgmental. ' +
         'Do not give medical or mental health diagnoses. Do not mention policy. ' +
-        'Produce JSON only. Keep items short and actionable.',
+        'Produce JSON only. Keep items short and actionable. ' +
+        'IMPORTANT: If the entry contains any indication of thoughts of self-harm, suicide, ' +
+        'or harming others, you MUST include a "crisis_note" field in your JSON response ' +
+        'with a compassionate message that acknowledges their distress and provides these ' +
+        'crisis resources: US Suicide & Crisis Lifeline (call or text 988) and Crisis Text ' +
+        'Line (text HOME to 741741). In this case, keep follow_up_questions gentle and ' +
+        'supportive, reframes hopeful, and micro_actions focused on seeking connection and ' +
+        'support. Never minimize or normalize thoughts of self-harm or harm to others. ' +
+        'If no distress signals are present, omit the crisis_note field entirely.',
       messages: [
         {
           role: 'user',
@@ -85,7 +93,9 @@ Deno.serve(async (req: Request) => {
             'Given the journal entry below, produce a JSON object with exactly these keys:\n' +
             '- follow_up_questions: array of 3 gentle, specific questions to help the user reflect deeper\n' +
             '- reframes: array of 2 alternative interpretations of the situation\n' +
-            '- micro_actions: array of 3 tiny next steps achievable in 5–10 minutes\n\n' +
+            '- micro_actions: array of 3 tiny next steps achievable in 5–10 minutes\n' +
+            '- crisis_note: (only if entry suggests self-harm or harm to others) a compassionate ' +
+            'message with crisis resources including 988 and Crisis Text Line\n\n' +
             'Return JSON only, no markdown fences, no extra text.\n\n' +
             entryText,
         },

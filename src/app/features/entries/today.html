@@ -1,6 +1,17 @@
 <app-hero-banner />
 <div class="today-page">
 
+  @if (showDisclaimer()) {
+    <div class="disclaimer-banner" role="alert">
+      <p class="disclaimer-text">
+        <strong>Before you begin:</strong> Daily Reflection is for personal reflection and AI
+        demonstration purposes only. It is not a substitute for a licensed therapist or mental
+        health professional. If you are in crisis, call or text <strong>988</strong>.
+      </p>
+      <button class="disclaimer-btn" (click)="dismissDisclaimer()">I understand</button>
+    </div>
+  }
+
   <header class="today-header">
     <h1 class="today-title">Today's Reflection</h1>
     <p class="today-date">{{ todayLabel }}</p>
@@ -24,9 +35,16 @@
             <mat-icon>psychology</mat-icon>
             Reflect Deeper
           </button>
+          <p class="crisis-line">If you're in crisis, call or text <strong>988</strong>.</p>
         }
 
         @if (reflectResult()) {
+          @if (reflectResult()!.crisis_note) {
+            <div class="crisis-note" role="alert">
+              <mat-icon class="crisis-icon">favorite</mat-icon>
+              <p>{{ reflectResult()!.crisis_note }}</p>
+            </div>
+          }
           <mat-card class="ai-result-card">
             <mat-card-header>
               <mat-card-title>Reflection</mat-card-title>

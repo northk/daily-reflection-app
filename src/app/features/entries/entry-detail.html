@@ -23,9 +23,16 @@
           <mat-icon>psychology</mat-icon>
           Reflect Deeper
         </button>
+        <p class="crisis-line">If you're in crisis, call or text <strong>988</strong>.</p>
       }
 
       @if (reflectResult()) {
+        @if (reflectResult()!.crisis_note) {
+          <div class="crisis-note" role="alert">
+            <mat-icon class="crisis-icon">favorite</mat-icon>
+            <p>{{ reflectResult()!.crisis_note }}</p>
+          </div>
+        }
         <mat-card class="ai-result-card">
           <mat-card-header>
             <mat-card-title>Reflection</mat-card-title>

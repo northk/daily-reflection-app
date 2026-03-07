@@ -58,6 +58,38 @@ html .mat-mdc-card-header {
   padding-bottom: 12px;
 }
 
+// Crisis resources note — shown beneath AI results when distress is detected
+.crisis-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  margin: 16px 0;
+  border-radius: 8px;
+  background-color: #FFF0F0;
+  border: 1px solid #FFBDBD;
+
+  .crisis-icon {
+    color: #C62828;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  p {
+    margin: 0;
+    font: var(--mat-sys-body-medium);
+    color: #4a0000;
+    line-height: 1.6;
+  }
+}
+
+// Static crisis line beneath AI buttons
+.crisis-line {
+  margin: 8px 0 0;
+  font: var(--mat-sys-body-small);
+  color: var(--mat-sys-on-surface-variant);
+}
+
 .mdc-button__label,
 .mat-mdc-button,
 .mat-mdc-outlined-button,

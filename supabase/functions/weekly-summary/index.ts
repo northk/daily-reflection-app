@@ -83,7 +83,13 @@ Deno.serve(async (req: Request) => {
       max_tokens: 1024,
       system:
         'You are a supportive reflection analyst. Summarize patterns without diagnosis. ' +
-        'Focus on themes, wins, stressors, and small experiments. Produce JSON only.',
+        'Focus on themes, wins, stressors, and small experiments. Produce JSON only. ' +
+        'IMPORTANT: If any entry contains any indication of thoughts of self-harm, suicide, ' +
+        'or harming others, you MUST include a "crisis_note" field in your JSON response ' +
+        'with a compassionate message that acknowledges their distress and provides these ' +
+        'crisis resources: US Suicide & Crisis Lifeline (call or text 988) and Crisis Text ' +
+        'Line (text HOME to 741741). Never minimize or normalize thoughts of self-harm or ' +
+        'harm to others. If no distress signals are present, omit the crisis_note field entirely.',
       messages: [
         {
           role: 'user',
@@ -94,7 +100,9 @@ Deno.serve(async (req: Request) => {
             '- stressors: array of 2–5 challenges or stress points\n' +
             '- suggested_experiments: array of 3 tiny experiments phrased as actions (3 days max each)\n' +
             '- tone: object with "overall" (one descriptive phrase) and "trend" ' +
-            '(one of: "improving", "flat", "worsening", "mixed")\n\n' +
+            '(one of: "improving", "flat", "worsening", "mixed")\n' +
+            '- crisis_note: (only if any entry suggests self-harm or harm to others) a compassionate ' +
+            'message with crisis resources including 988 and Crisis Text Line\n\n' +
             'Return JSON only, no markdown fences, no extra text.\n\n' +
             entriesText,
         },

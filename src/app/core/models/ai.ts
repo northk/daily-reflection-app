@@ -2,6 +2,7 @@ export interface ReflectDeeperResponse {
   follow_up_questions: string[];
   reframes: string[];
   micro_actions: string[];
+  crisis_note?: string;
 }
 
 export interface WeeklySummaryResponse {
@@ -13,4 +14,5 @@ export interface WeeklySummaryResponse {
     overall: string;
     trend: string;
   };
+  crisis_note?: string;
 }

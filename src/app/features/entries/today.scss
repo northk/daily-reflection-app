@@ -9,6 +9,41 @@
   padding: 24px 16px 220px;
 }
 
+.disclaimer-banner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  margin-bottom: 24px;
+  border-radius: 8px;
+  background-color: #FFF8DC;
+  border: 1px solid #D4A800;
+}
+
+.disclaimer-text {
+  flex: 1;
+  margin: 0;
+  font: var(--mat-sys-body-medium);
+  color: #5a4000;
+  line-height: 1.6;
+}
+
+.disclaimer-btn {
+  flex-shrink: 0;
+  padding: 8px 16px;
+  border: 1px solid #D4A800;
+  border-radius: 4px;
+  background: transparent;
+  color: #5a4000;
+  font: var(--mat-sys-label-large);
+  cursor: pointer;
+  white-space: nowrap;
+
+  &:hover {
+    background-color: rgba(212, 168, 0, 0.1);
+  }
+}
+
 .today-title {
   margin: 0 0 4px;
   font: var(--mat-sys-headline-medium);

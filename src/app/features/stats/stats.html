@@ -78,6 +78,12 @@
         }
 
         @if (summaryResult()) {
+          @if (summaryResult()!.crisis_note) {
+            <div class="crisis-note" role="alert">
+              <mat-icon class="crisis-icon">favorite</mat-icon>
+              <p>{{ summaryResult()!.crisis_note }}</p>
+            </div>
+          }
           <div class="summary-result">
             <p class="summary-tone">
               Tone: <strong>{{ summaryResult()!.tone.overall }}</strong>
