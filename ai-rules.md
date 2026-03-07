@@ -36,7 +36,7 @@ Build an Angular + Supabase daily reflection app with:
 src/app/
   core/
     models/
-    services/
+    services/      ← supabase, auth, entries, ai, speech-recognition
     guards/
   features/
     auth/
@@ -61,6 +61,7 @@ Use path aliases from tsconfig, never relative imports.
    * `auth.ts` → auth/session/token
    * `entries.ts` → CRUD + queries
    * `ai.ts` → calls Edge Functions only
+   * `speech-recognition.ts` → wraps the browser Web Speech API; exposes `supported`, `listening` signal, `start()`, `stop()`
 
 5. **Auth required on all routes except `/login`**
 
@@ -159,6 +160,15 @@ getEntriesInRange(startDate: string, endDate: string): Promise<Entry[]>
 ```
 reflectDeeper(entry: Entry): Promise<ReflectDeeperResponse>
 weeklySummary(entries: Entry[]): Promise<WeeklySummaryResponse>
+```
+
+### speech-recognition.ts
+
+```
+supported: boolean                          // true if browser supports Web Speech API
+listening: Signal<boolean>                  // readonly; true while recording
+start(onSegment: (text: string) => void): void  // continuous mode; calls onSegment per final result
+stop(): void
 ```
 
 ---

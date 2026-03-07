@@ -33,6 +33,7 @@ graph TD
       AS[AuthService]
       ES[EntriesService]
       AIS[AIService]
+      SRS[SpeechRecognitionService]
     end
   end
 
@@ -64,6 +65,10 @@ graph TD
   SC -->|weeklySummary| AIS
   SET -->|downloadEntriesAsCsv · deleteAllEntries| ES
   SET -->|deleteAccount| AS
+
+  %% EntryEditor → SpeechRecognitionService
+  EE -->|start · stop · listening| SRS
+  SRS -->|Web Speech API| Browser[(Browser\nSpeechRecognition)]
 
   %% Feature → Shared
   TC -->|renders| EE
@@ -176,6 +181,7 @@ sequenceDiagram
 | `EntriesService` | All CRUD + query methods for entries | `SupabaseService` |
 | `AIService` | Edge function HTTP calls | `AuthService` (JWT), Edge Functions |
 | `AuthGuard` | Route protection | `AuthService` |
+| `SpeechRecognitionService` | Voice-to-text via Web Speech API | Browser `SpeechRecognition` |
 
 ## 5. Data Ownership Rules
 

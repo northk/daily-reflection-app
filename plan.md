@@ -45,7 +45,8 @@ daily-reflection-app/
 │       │   │   ├── supabase.ts
 │       │   │   ├── auth.ts
 │       │   │   ├── entries.ts
-│       │   │   └── ai.ts
+│       │   │   ├── ai.ts
+│       │   │   └── speech-recognition.ts
 │       │   └── guards/
 │       │       └── auth.ts
 │       ├── features/

@@ -9,6 +9,7 @@ A private journaling app with AI-powered reflection. Write daily entries, track 
 - **Stats** — 14-day streak, avg mood, top tags, word-count chart
 - **Reflect Deeper** — AI analysis of a single entry: follow-up questions, reframes, micro-actions
 - **Weekly Summary** — AI synthesis of the last 7 days: themes, wins, stressors, suggested experiments
+- **Voice-to-text** — speak your entry using the browser's built-in Speech Recognition API (mic button on the body field; degrades gracefully on unsupported browsers)
 - **Settings** — export all entries as CSV, delete all entries, or delete your account
 
 ## Tech Stack
