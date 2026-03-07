@@ -29,6 +29,8 @@ export class EntryEditorComponent implements OnChanges {
   @Input() saving = false;
   @Output() save = new EventEmitter<Partial<Entry>>();
 
+  private lastPatchedId: string | undefined;
+
   readonly moodOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
   form = new FormGroup({
@@ -38,9 +40,9 @@ export class EntryEditorComponent implements OnChanges {
     tags: new FormControl<string[]>([], { nonNullable: true }),
   });
 
-  ngOnChanges(changes: SimpleChanges): void {
-    const prev = changes['entry']?.previousValue as Entry | null;
-    if (this.entry && prev?.id !== this.entry.id) {
+  ngOnChanges(_changes: SimpleChanges): void {
+    if (this.entry && this.entry.id !== this.lastPatchedId) {
+      this.lastPatchedId = this.entry.id;
       this.form.patchValue({
         title: this.entry.title ?? '',
         body: this.entry.body,
