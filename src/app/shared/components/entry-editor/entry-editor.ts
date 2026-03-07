@@ -1,13 +1,16 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, inject } from '@angular/core';
 import { ReactiveFormsModule, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatFormField, MatLabel, MatError } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { MatSelect } from '@angular/material/select';
 import { MatOption } from '@angular/material/core';
-import { MatButton } from '@angular/material/button';
+import { MatButton, MatIconButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
+import { MatTooltip } from '@angular/material/tooltip';
 import { Entry } from '@core/models/entry';
 import { TagChipsComponent } from '@shared/components/tag-chips/tag-chips';
 import { LoadingComponent } from '@shared/components/loading/loading';
+import { SpeechRecognitionService } from '@core/services/speech-recognition';
 
 @Component({
   selector: 'app-entry-editor',
@@ -17,7 +20,9 @@ import { LoadingComponent } from '@shared/components/loading/loading';
     MatFormField, MatLabel, MatError,
     MatInput,
     MatSelect, MatOption,
-    MatButton,
+    MatButton, MatIconButton,
+    MatIcon,
+    MatTooltip,
     TagChipsComponent,
     LoadingComponent,
   ],
@@ -28,6 +33,10 @@ export class EntryEditorComponent implements OnChanges {
   @Input() entry: Entry | null = null;
   @Input() saving = false;
   @Output() save = new EventEmitter<Partial<Entry>>();
+
+  private readonly speech = inject(SpeechRecognitionService);
+  readonly speechSupported = this.speech.supported;
+  readonly listening = this.speech.listening;
 
   private lastPatchedId: string | undefined;
 
@@ -54,6 +63,22 @@ export class EntryEditorComponent implements OnChanges {
 
   onTagsChange(tags: string[]): void {
     this.form.controls.tags.setValue(tags);
+  }
+
+  onMicClick(): void {
+    if (this.speech.listening()) {
+      this.speech.stop();
+      return;
+    }
+    this.speech.start((segment: string) => {
+      const current = this.form.controls.body.value ?? '';
+      const separator = current && !current.endsWith(' ') ? ' ' : '';
+      this.form.controls.body.setValue(current + separator + segment);
+    });
+  }
+
+  onClearBody(): void {
+    this.form.controls.body.setValue('');
   }
 
   onSubmit(): void {

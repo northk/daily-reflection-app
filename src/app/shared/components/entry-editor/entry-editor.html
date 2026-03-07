@@ -16,6 +16,29 @@
     <mat-error>Body is required.</mat-error>
   </mat-form-field>
 
+  <div class="body-actions">
+    @if (speechSupported) {
+      <button
+        mat-icon-button
+        type="button"
+        [class.listening]="listening()"
+        [matTooltip]="listening() ? 'Stop recording' : 'Speak your entry'"
+        (click)="onMicClick()"
+      >
+        <mat-icon>{{ listening() ? 'stop_circle' : 'mic' }}</mat-icon>
+      </button>
+    }
+    <button
+      mat-icon-button
+      type="button"
+      matTooltip="Clear entry text"
+      [disabled]="!form.controls.body.value"
+      (click)="onClearBody()"
+    >
+      <mat-icon>clear</mat-icon>
+    </button>
+  </div>
+
   <mat-form-field appearance="outline" class="mood-field">
     <mat-label>Mood</mat-label>
     <mat-select formControlName="mood">

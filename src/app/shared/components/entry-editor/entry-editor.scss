@@ -11,3 +11,20 @@
 .mood-field {
   width: 160px;
 }
+
+.body-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 4px;
+  margin-top: -8px;
+
+  button.listening {
+    color: var(--mat-sys-error);
+    animation: mic-pulse 1.2s ease-in-out infinite;
+  }
+}
+
+@keyframes mic-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
