@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, ViewChild, ElementRef, effect } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
@@ -37,6 +37,8 @@ export class TodayComponent {
   readonly reflectResult = signal<ReflectDeeperResponse | null>(null);
   readonly showDisclaimer = signal(false);
 
+  @ViewChild('aiResult') private aiResultRef?: ElementRef;
+
   // Use local date parts to avoid UTC-vs-local timezone shift
   readonly todayDate: string = this.getLocalDateString();
 
@@ -50,6 +52,13 @@ export class TodayComponent {
       this.showDisclaimer.set(true);
     }
     this.loadEntry();
+    effect(() => {
+      if (this.reflectResult()) {
+        setTimeout(() => {
+          this.aiResultRef?.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 50);
+      }
+    });
   }
 
   dismissDisclaimer(): void {

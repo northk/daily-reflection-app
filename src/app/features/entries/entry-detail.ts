@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, ViewChild, ElementRef, effect } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatButton } from '@angular/material/button';
@@ -39,6 +39,8 @@ export class EntryDetailComponent {
   readonly reflectResult = signal<ReflectDeeperResponse | null>(null);
   readonly showDeleteConfirm = signal(false);
 
+  @ViewChild('aiResult') private aiResultRef?: ElementRef;
+
   private readonly id: string | null;
 
   constructor(
@@ -55,6 +57,13 @@ export class EntryDetailComponent {
     } else {
       this.loadEntry();
     }
+    effect(() => {
+      if (this.reflectResult()) {
+        setTimeout(() => {
+          this.aiResultRef?.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 50);
+      }
+    });
   }
 
   async onSave(formValue: Partial<Entry>): Promise<void> {
