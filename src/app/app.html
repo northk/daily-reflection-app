@@ -2,6 +2,8 @@
   <mat-toolbar class="app-toolbar">
     <div class="toolbar-inner">
       <span class="app-name">Daily Reflection</span>
+
+      <!-- Desktop nav -->
       <nav class="nav-links">
         <a mat-button routerLink="/today" routerLinkActive="nav-active">Today</a>
         <a mat-button routerLink="/entries" routerLinkActive="nav-active">Entries</a>
@@ -9,11 +11,31 @@
         <a mat-button routerLink="/settings" routerLinkActive="nav-active">Settings</a>
         <a mat-button routerLink="/about" routerLinkActive="nav-active">About</a>
       </nav>
-      <button mat-icon-button (click)="signOut()" aria-label="Sign out">
+      <button mat-icon-button class="desktop-logout" (click)="signOut()" aria-label="Sign out">
         <mat-icon>logout</mat-icon>
+      </button>
+
+      <!-- Mobile hamburger -->
+      <button mat-icon-button class="menu-toggle" (click)="toggleMenu()" [attr.aria-label]="menuOpen() ? 'Close menu' : 'Open menu'">
+        <mat-icon>{{ menuOpen() ? 'close' : 'menu' }}</mat-icon>
       </button>
     </div>
   </mat-toolbar>
+
+  <!-- Mobile dropdown nav -->
+  @if (menuOpen()) {
+    <nav class="mobile-nav">
+      <a mat-button routerLink="/today" routerLinkActive="nav-active" (click)="closeMenu()">Today</a>
+      <a mat-button routerLink="/entries" routerLinkActive="nav-active" (click)="closeMenu()">Entries</a>
+      <a mat-button routerLink="/stats" routerLinkActive="nav-active" (click)="closeMenu()">Stats</a>
+      <a mat-button routerLink="/settings" routerLinkActive="nav-active" (click)="closeMenu()">Settings</a>
+      <a mat-button routerLink="/about" routerLinkActive="nav-active" (click)="closeMenu()">About</a>
+      <button mat-button (click)="signOut()">
+        <mat-icon>logout</mat-icon>
+        Sign out
+      </button>
+    </nav>
+  }
 }
 
 <router-outlet />

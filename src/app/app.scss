@@ -17,6 +17,9 @@
   font: var(--mat-sys-headline-large);
   font-weight: 700;
   flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .nav-links {
@@ -26,6 +29,54 @@
 
 a.nav-active {
   color: var(--mat-sys-primary);
+}
+
+// Desktop: show nav + logout; hide hamburger
+.menu-toggle {
+  display: none;
+}
+
+// Mobile
+@media (max-width: 767px) {
+  .app-name {
+    font: var(--mat-sys-headline-medium);
+    font-weight: 700;
+  }
+
+  .nav-links,
+  .desktop-logout {
+    display: none;
+  }
+
+  .menu-toggle {
+    display: inline-flex;
+  }
+}
+
+// Mobile dropdown nav panel
+.mobile-nav {
+  position: fixed;
+  top: 64px;
+  left: 0;
+  right: 0;
+  z-index: 99;
+  background-color: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  display: flex;
+  flex-direction: column;
+  padding: 8px 0;
+
+  a, button {
+    width: 100%;
+    text-align: left;
+    justify-content: flex-start;
+    padding: 12px 24px;
+    font: var(--mat-sys-body-medium);
+  }
+
+  a.nav-active {
+    color: var(--mat-sys-primary);
+  }
 }
 
 .footer-banner {

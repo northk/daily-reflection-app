@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { MatToolbar } from '@angular/material/toolbar';
 import { MatButton, MatIconButton } from '@angular/material/button';
@@ -16,8 +16,18 @@ export class App {
   private readonly router = inject(Router);
   readonly user = this.auth.user;
   readonly currentYear = new Date().getFullYear();
+  readonly menuOpen = signal(false);
+
+  toggleMenu(): void {
+    this.menuOpen.update(open => !open);
+  }
+
+  closeMenu(): void {
+    this.menuOpen.set(false);
+  }
 
   async signOut(): Promise<void> {
+    this.menuOpen.set(false);
     try {
       await this.auth.signOut();
     } finally {
