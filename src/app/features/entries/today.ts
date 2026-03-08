@@ -1,4 +1,4 @@
-import { Component, signal, ViewChild, ElementRef, effect } from '@angular/core';
+import { Component, signal, ViewChild, ElementRef } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
@@ -52,13 +52,6 @@ export class TodayComponent {
       this.showDisclaimer.set(true);
     }
     this.loadEntry();
-    effect(() => {
-      if (this.reflectResult()) {
-        setTimeout(() => {
-          this.aiResultRef?.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 50);
-      }
-    });
   }
 
   dismissDisclaimer(): void {
@@ -108,6 +101,7 @@ export class TodayComponent {
     this.reflectResult.set(null);
     try {
       this.reflectResult.set(await this.aiService.reflectDeeper(entry));
+      setTimeout(() => this.aiResultRef?.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150);
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Could not generate reflection. Please try again.';
       this.snackBar.open(msg, 'Dismiss', { duration: 4000 });
