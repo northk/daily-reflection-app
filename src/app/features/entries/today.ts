@@ -1,4 +1,4 @@
-import { Component, signal, ViewChild, ElementRef } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
@@ -37,7 +37,6 @@ export class TodayComponent {
   readonly reflectResult = signal<ReflectDeeperResponse | null>(null);
   readonly showDisclaimer = signal(false);
 
-  @ViewChild('aiResult') private aiResultRef?: ElementRef;
 
   // Use local date parts to avoid UTC-vs-local timezone shift
   readonly todayDate: string = this.getLocalDateString();
@@ -102,12 +101,12 @@ export class TodayComponent {
     try {
       this.reflectResult.set(await this.aiService.reflectDeeper(entry));
       setTimeout(() => {
-        const el = this.aiResultRef?.nativeElement;
+        const el = document.querySelector('.ai-result-card') as HTMLElement | null;
         if (el) {
-          const top = window.scrollY + el.getBoundingClientRect().top - 72;
-          window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+          const top = el.getBoundingClientRect().top + window.pageYOffset - 72;
+          window.scrollTo(0, Math.max(0, top));
         }
-      }, 150);
+      }, 300);
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Could not generate reflection. Please try again.';
       this.snackBar.open(msg, 'Dismiss', { duration: 4000 });

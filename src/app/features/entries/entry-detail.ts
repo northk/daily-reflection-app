@@ -1,4 +1,4 @@
-import { Component, signal, ViewChild, ElementRef } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatButton } from '@angular/material/button';
@@ -39,7 +39,6 @@ export class EntryDetailComponent {
   readonly reflectResult = signal<ReflectDeeperResponse | null>(null);
   readonly showDeleteConfirm = signal(false);
 
-  @ViewChild('aiResult') private aiResultRef?: ElementRef;
 
   private readonly id: string | null;
 
@@ -94,12 +93,12 @@ export class EntryDetailComponent {
     try {
       this.reflectResult.set(await this.aiService.reflectDeeper(entry));
       setTimeout(() => {
-        const el = this.aiResultRef?.nativeElement;
+        const el = document.querySelector('.ai-result-card') as HTMLElement | null;
         if (el) {
-          const top = window.scrollY + el.getBoundingClientRect().top - 72;
-          window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+          const top = el.getBoundingClientRect().top + window.pageYOffset - 72;
+          window.scrollTo(0, Math.max(0, top));
         }
-      }, 150);
+      }, 300);
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Could not generate reflection. Please try again.';
       this.snackBar.open(msg, 'Dismiss', { duration: 4000 });
