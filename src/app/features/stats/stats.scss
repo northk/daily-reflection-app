@@ -7,6 +7,10 @@
   max-width: 720px;
   margin: 0 auto;
   padding: 24px 16px 220px;
+
+  @media (max-width: 767px) {
+    padding-bottom: 24px;
+  }
 }
 
 .stats-title {
