@@ -93,7 +93,13 @@ export class EntryDetailComponent {
     this.reflectResult.set(null);
     try {
       this.reflectResult.set(await this.aiService.reflectDeeper(entry));
-      setTimeout(() => this.aiResultRef?.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150);
+      setTimeout(() => {
+        const el = this.aiResultRef?.nativeElement;
+        if (el) {
+          const top = window.scrollY + el.getBoundingClientRect().top - 72;
+          window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+        }
+      }, 150);
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Could not generate reflection. Please try again.';
       this.snackBar.open(msg, 'Dismiss', { duration: 4000 });
