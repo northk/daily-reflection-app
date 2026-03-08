@@ -3,8 +3,9 @@ import { ReactiveFormsModule, FormControl, FormGroup, Validators } from '@angula
 import { Router } from '@angular/router';
 import { MatCard, MatCardHeader, MatCardTitle, MatCardSubtitle, MatCardContent, MatCardActions } from '@angular/material/card';
 import { MatFormField, MatLabel, MatError } from '@angular/material/form-field';
-import { MatInput } from '@angular/material/input';
-import { MatButton } from '@angular/material/button';
+import { MatInput, MatSuffix } from '@angular/material/input';
+import { MatButton, MatIconButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
 import { AuthService } from '@core/services/auth';
 import { LoadingComponent } from '@shared/components/loading/loading';
 
@@ -15,8 +16,9 @@ import { LoadingComponent } from '@shared/components/loading/loading';
     ReactiveFormsModule,
     MatCard, MatCardHeader, MatCardTitle, MatCardSubtitle, MatCardContent, MatCardActions,
     MatFormField, MatLabel, MatError,
-    MatInput,
-    MatButton,
+    MatInput, MatSuffix,
+    MatButton, MatIconButton,
+    MatIcon,
     LoadingComponent,
   ],
   templateUrl: './login.html',
@@ -27,6 +29,7 @@ export class LoginComponent {
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
   readonly confirmationSent = signal(false);
+  readonly showPassword = signal(false);
 
   form = new FormGroup({
     email: new FormControl('', {

@@ -41,9 +41,18 @@
             <input
               matInput
               formControlName="password"
-              type="password"
+              [type]="showPassword() ? 'text' : 'password'"
               [attr.autocomplete]="isSignUp ? 'new-password' : 'current-password'"
             />
+            <button
+              mat-icon-button
+              matSuffix
+              type="button"
+              [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
+              (click)="showPassword.set(!showPassword())"
+            >
+              <mat-icon>{{ showPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button>
             <mat-error>Password must be at least 6 characters.</mat-error>
           </mat-form-field>
 
