@@ -6,9 +6,11 @@ import { environment } from '@env/environment';
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private _session = signal<Session | null>(null);
+  private _recoveryMode = signal(false);
 
   readonly session = this._session.asReadonly();
   readonly user = computed(() => this._session()?.user ?? null);
+  readonly recoveryMode = this._recoveryMode.asReadonly();
 
   constructor(private supabase: SupabaseService) {
     // Hydrate with the persisted session on startup
@@ -18,8 +20,15 @@ export class AuthService {
 
     // Keep in sync with auth state changes (sign-in, sign-out, token refresh)
     this.supabase.client.auth.onAuthStateChange((_event, session) => {
+      if (_event === 'PASSWORD_RECOVERY') {
+        this._recoveryMode.set(true);
+      }
       this._session.set(session);
     });
+  }
+
+  clearRecoveryMode(): void {
+    this._recoveryMode.set(false);
   }
 
   async signUp(email: string, password: string): Promise<void> {
@@ -40,6 +49,18 @@ export class AuthService {
   async getAccessToken(): Promise<string | null> {
     const { data } = await this.supabase.client.auth.getSession();
     return data.session?.access_token ?? null;
+  }
+
+  async resetPassword(email: string): Promise<void> {
+    const { error } = await this.supabase.client.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    if (error) throw error;
+  }
+
+  async updatePassword(password: string): Promise<void> {
+    const { error } = await this.supabase.client.auth.updateUser({ password });
+    if (error) throw error;
   }
 
   async deleteAccount(): Promise<void> {

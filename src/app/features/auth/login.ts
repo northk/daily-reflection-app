@@ -25,7 +25,7 @@ import { LoadingComponent } from '@shared/components/loading/loading';
   styleUrl: './login.scss',
 })
 export class LoginComponent {
-  readonly mode = signal<'signin' | 'signup'>('signin');
+  readonly mode = signal<'signin' | 'signup' | 'forgot'>('signin');
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
   readonly confirmationSent = signal(false);
@@ -52,6 +52,35 @@ export class LoginComponent {
     this.mode.update(m => m === 'signup' ? 'signin' : 'signup');
     this.error.set(null);
     this.confirmationSent.set(false);
+  }
+
+  showForgot(): void {
+    this.mode.set('forgot');
+    this.error.set(null);
+    this.confirmationSent.set(false);
+  }
+
+  backToLogin(): void {
+    this.mode.set('signin');
+    this.error.set(null);
+    this.confirmationSent.set(false);
+  }
+
+  async onForgotPassword(): Promise<void> {
+    if (this.form.controls.email.invalid || this.loading()) return;
+    const { email } = this.form.getRawValue();
+
+    this.loading.set(true);
+    this.error.set(null);
+
+    try {
+      await this.auth.resetPassword(email);
+      this.confirmationSent.set(true);
+    } catch (e: unknown) {
+      this.error.set(e instanceof Error ? e.message : 'Something went wrong. Please try again.');
+    } finally {
+      this.loading.set(false);
+    }
   }
 
   async onSubmit(): Promise<void> {
