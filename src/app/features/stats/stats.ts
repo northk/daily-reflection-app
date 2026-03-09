@@ -81,6 +81,13 @@ export class StatsComponent {
         return;
       }
       this.summaryResult.set(await this.aiService.weeklySummary(entries));
+      setTimeout(() => {
+        const el = document.querySelector('.summary-result') as HTMLElement | null;
+        if (el) {
+          const top = el.getBoundingClientRect().top + window.pageYOffset - 72;
+          window.scrollTo(0, Math.max(0, top));
+        }
+      }, 300);
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Could not generate summary. Please try again.';
       this.snackBar.open(msg, 'Dismiss', { duration: 4000 });

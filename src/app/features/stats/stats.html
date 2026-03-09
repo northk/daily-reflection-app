@@ -50,21 +50,6 @@
 
     <mat-card class="section-card">
       <mat-card-header>
-        <mat-card-title>Word Count</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <div class="chart-container">
-          <canvas baseChart
-            [type]="'bar'"
-            [data]="chartData()"
-            [options]="chartOptions"
-          ></canvas>
-        </div>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card class="section-card">
-      <mat-card-header>
         <mat-card-title>Weekly Summary</mat-card-title>
       </mat-card-header>
       <mat-card-content>
@@ -120,6 +105,21 @@
             </ul>
           </div>
         }
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="section-card">
+      <mat-card-header>
+        <mat-card-title>Word Count</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="chart-container">
+          <canvas baseChart
+            [type]="'bar'"
+            [data]="chartData()"
+            [options]="chartOptions"
+          ></canvas>
+        </div>
       </mat-card-content>
     </mat-card>
 
