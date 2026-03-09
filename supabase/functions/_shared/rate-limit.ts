@@ -11,23 +11,18 @@ export async function checkRateLimit(userId: string): Promise<{ allowed: boolean
 
   const today = new Date().toISOString().split('T')[0]
 
-  const { data } = await supabase
-    .from('ai_usage')
-    .select('call_count')
-    .eq('user_id', userId)
-    .eq('usage_date', today)
-    .single()
+  const { data, error } = await supabase.rpc('check_and_increment_ai_usage', {
+    p_user_id: userId,
+    p_usage_date: today,
+    p_daily_limit: DAILY_LIMIT,
+  })
 
-  const currentCount = data?.call_count ?? 0
-
-  if (currentCount >= DAILY_LIMIT) {
+  if (error) {
+    // Fail closed: if the DB call fails, deny the request rather than
+    // allowing unlimited calls through.
+    console.error('Rate limit check failed:', error.message)
     return { allowed: false }
   }
 
-  await supabase.from('ai_usage').upsert(
-    { user_id: userId, usage_date: today, call_count: currentCount + 1 },
-    { onConflict: 'user_id,usage_date' },
-  )
-
-  return { allowed: true }
+  return { allowed: data === true }
 }
