@@ -7,13 +7,13 @@ import {
   MatChipRemove,
   MatChipInputEvent,
 } from '@angular/material/chips';
-import { MatFormField, MatLabel } from '@angular/material/form-field';
+import { MatFormField, MatLabel, MatHint } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
 
 @Component({
   selector: 'app-tag-chips',
   standalone: true,
-  imports: [MatFormField, MatLabel, MatChipGrid, MatChipRow, MatChipInput, MatChipRemove, MatIcon],
+  imports: [MatFormField, MatLabel, MatHint, MatChipGrid, MatChipRow, MatChipInput, MatChipRemove, MatIcon],
   templateUrl: './tag-chips.html',
   styleUrl: './tag-chips.scss',
 })
