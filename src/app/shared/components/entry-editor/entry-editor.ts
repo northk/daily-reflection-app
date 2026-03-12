@@ -31,12 +31,21 @@ import { SpeechRecognitionService } from '@core/services/speech-recognition';
 })
 export class EntryEditorComponent implements OnChanges {
   @Input() entry: Entry | null = null;
+  @Input() date: string | null = null;
   @Input() saving = false;
   @Output() save = new EventEmitter<Partial<Entry>>();
 
   private readonly speech = inject(SpeechRecognitionService);
   readonly speechSupported = this.speech.supported;
   readonly listening = this.speech.listening;
+
+  get dateLabel(): string {
+    if (!this.date) return '';
+    const [y, m, d] = this.date.split('-').map(Number);
+    return new Date(y, m - 1, d).toLocaleDateString('en-US', {
+      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+    });
+  }
 
   private lastPatchedId: string | undefined;
 

@@ -1,3 +1,10 @@
+.entry-date-label {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--mat-sys-on-surface-variant);
+  font-weight: 500;
+}
+
 .entry-form {
   display: flex;
   flex-direction: column;

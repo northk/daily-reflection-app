@@ -11,6 +11,7 @@
   } @else if (entry()) {
     <app-entry-editor
       [entry]="entry()"
+      [date]="entry()?.entry_date ?? null"
       [saving]="saving()"
       (save)="onSave($event)"
     />

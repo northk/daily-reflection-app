@@ -1,5 +1,9 @@
 <form [formGroup]="form" (ngSubmit)="onSubmit()" class="entry-form">
 
+  @if (dateLabel) {
+    <p class="entry-date-label">{{ dateLabel }}</p>
+  }
+
   <mat-form-field appearance="outline" class="full-width">
     <mat-label>Title</mat-label>
     <input matInput formControlName="title" placeholder="Give your entry a title…" />
