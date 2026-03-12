@@ -1,6 +1,7 @@
 import { Injectable, signal, computed } from '@angular/core';
 import type { Session } from '@supabase/supabase-js';
 import { SupabaseService } from '@core/services/supabase';
+import { BrowserUiService } from '@core/services/browser-ui';
 import { environment } from '@env/environment';
 
 @Injectable({ providedIn: 'root' })
@@ -12,7 +13,10 @@ export class AuthService {
   readonly user = computed(() => this._session()?.user ?? null);
   readonly recoveryMode = this._recoveryMode.asReadonly();
 
-  constructor(private supabase: SupabaseService) {
+  constructor(
+    private supabase: SupabaseService,
+    private browserUi: BrowserUiService,
+  ) {
     // Hydrate with the persisted session on startup
     this.supabase.client.auth.getSession().then(({ data }) => {
       this._session.set(data.session);
@@ -52,8 +56,11 @@ export class AuthService {
   }
 
   async resetPassword(email: string): Promise<void> {
+    const origin = this.browserUi.getOrigin();
+    if (!origin) throw new Error('Password reset is only available in the browser.');
+
     const { error } = await this.supabase.client.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
+      redirectTo: `${origin}/reset-password`,
     });
     if (error) throw error;
   }

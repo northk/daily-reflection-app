@@ -70,7 +70,7 @@
               <p>{{ summaryResult()!.crisis_note }}</p>
             </div>
           }
-          <div class="summary-result">
+          <div #summaryResultEl class="summary-result">
             <p class="summary-tone">
               Tone: <strong>{{ summaryResult()!.tone.overall }}</strong>
               &nbsp;·&nbsp; Trend: <strong>{{ summaryResult()!.tone.trend }}</strong>

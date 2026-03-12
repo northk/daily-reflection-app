@@ -1,10 +1,14 @@
 import { Injectable } from '@angular/core';
 import { SupabaseService } from '@core/services/supabase';
+import { BrowserUiService } from '@core/services/browser-ui';
 import { Entry } from '@core/models/entry';
 
 @Injectable({ providedIn: 'root' })
 export class EntriesService {
-  constructor(private supabase: SupabaseService) {}
+  constructor(
+    private supabase: SupabaseService,
+    private browserUi: BrowserUiService,
+  ) {}
 
   async getEntryByDate(date: string): Promise<Entry | null> {
     const { data, error } = await this.supabase.client
@@ -108,13 +112,8 @@ export class EntriesService {
 
     const csv = ['date,title,mood,tags,body', ...rows].join('\n');
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
     const today = new Date().toISOString().slice(0, 10);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `daily-reflection-export-${today}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+    this.browserUi.downloadBlob(blob, `daily-reflection-export-${today}.csv`);
   }
 
   async deleteAllEntries(): Promise<void> {

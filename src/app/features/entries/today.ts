@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, ViewChild, ElementRef } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
@@ -6,6 +6,7 @@ import { MatCard, MatCardContent, MatCardHeader, MatCardTitle } from '@angular/m
 import { EntriesService } from '@core/services/entries';
 import { AuthService } from '@core/services/auth';
 import { AiService } from '@core/services/ai';
+import { BrowserUiService } from '@core/services/browser-ui';
 import { Entry } from '@core/models/entry';
 import type { ReflectDeeperResponse } from '@core/models/ai';
 import { EntryEditorComponent } from '@shared/components/entry-editor/entry-editor';
@@ -30,6 +31,8 @@ import { HeroBannerComponent } from '@shared/components/hero-banner/hero-banner'
   styleUrl: './today.scss',
 })
 export class TodayComponent {
+  @ViewChild('aiResultCard') private aiResultCard?: ElementRef<HTMLElement>;
+
   readonly entry = signal<Entry | null>(null);
   readonly loading = signal(true);
   readonly saving = signal(false);
@@ -45,16 +48,17 @@ export class TodayComponent {
     private entries: EntriesService,
     private auth: AuthService,
     private aiService: AiService,
+    private browserUi: BrowserUiService,
     private snackBar: MatSnackBar,
   ) {
-    if (!localStorage.getItem('disclaimer-acknowledged')) {
+    if (!this.browserUi.getLocalStorageItem('disclaimer-acknowledged')) {
       this.showDisclaimer.set(true);
     }
     this.loadEntry();
   }
 
   dismissDisclaimer(): void {
-    localStorage.setItem('disclaimer-acknowledged', '1');
+    this.browserUi.setLocalStorageItem('disclaimer-acknowledged', '1');
     this.showDisclaimer.set(false);
   }
 
@@ -101,11 +105,8 @@ export class TodayComponent {
     try {
       this.reflectResult.set(await this.aiService.reflectDeeper(entry));
       setTimeout(() => {
-        const el = document.querySelector('.ai-result-card') as HTMLElement | null;
-        if (el) {
-          const top = el.getBoundingClientRect().top + window.pageYOffset - 72;
-          window.scrollTo(0, Math.max(0, top));
-        }
+        const el = this.aiResultCard?.nativeElement;
+        if (el) this.browserUi.scrollToElement(el, 72);
       }, 300);
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Could not generate reflection. Please try again.';

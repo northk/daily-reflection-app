@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, ViewChild, ElementRef } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
@@ -7,6 +7,7 @@ import { BaseChartDirective, provideCharts, withDefaultRegisterables } from 'ng2
 import type { ChartData, ChartOptions } from 'chart.js';
 import { EntriesService } from '@core/services/entries';
 import { AiService } from '@core/services/ai';
+import { BrowserUiService } from '@core/services/browser-ui';
 import { Entry } from '@core/models/entry';
 import type { WeeklySummaryResponse } from '@core/models/ai';
 import { LoadingComponent } from '@shared/components/loading/loading';
@@ -31,6 +32,8 @@ import { HeroBannerComponent } from '@shared/components/hero-banner/hero-banner'
   styleUrl: './stats.scss',
 })
 export class StatsComponent {
+  @ViewChild('summaryResultEl') private summaryResultEl?: ElementRef<HTMLElement>;
+
   readonly loading = signal(true);
   readonly streak = signal(0);
   readonly entryCount = signal(0);
@@ -65,6 +68,7 @@ export class StatsComponent {
   constructor(
     private entriesService: EntriesService,
     private aiService: AiService,
+    private browserUi: BrowserUiService,
     private snackBar: MatSnackBar,
   ) {
     this.loadStats();
@@ -82,11 +86,8 @@ export class StatsComponent {
       }
       this.summaryResult.set(await this.aiService.weeklySummary(entries));
       setTimeout(() => {
-        const el = document.querySelector('.summary-result') as HTMLElement | null;
-        if (el) {
-          const top = el.getBoundingClientRect().top + window.pageYOffset - 72;
-          window.scrollTo(0, Math.max(0, top));
-        }
+        const el = this.summaryResultEl?.nativeElement;
+        if (el) this.browserUi.scrollToElement(el, 72);
       }, 300);
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Could not generate summary. Please try again.';

@@ -1,9 +1,13 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, inject } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 
 @Injectable({ providedIn: 'root' })
 export class SpeechRecognitionService {
+  private readonly _doc = inject(DOCUMENT);
+
   readonly supported: boolean =
-    'SpeechRecognition' in window || 'webkitSpeechRecognition' in window;
+    'SpeechRecognition' in (this._doc.defaultView ?? {}) ||
+    'webkitSpeechRecognition' in (this._doc.defaultView ?? {});
 
   private readonly _listening = signal(false);
   readonly listening = this._listening.asReadonly();
@@ -12,8 +16,8 @@ export class SpeechRecognitionService {
 
   start(onSegment: (text: string) => void): void {
     if (!this.supported) return;
-    const Impl =
-      (window as any).SpeechRecognition ?? (window as any).webkitSpeechRecognition;
+    const win = this._doc.defaultView as any;
+    const Impl = win?.SpeechRecognition ?? win?.webkitSpeechRecognition;
     this.recognition = new Impl();
     this.recognition.continuous = true;
     this.recognition.interimResults = false;
