@@ -33,7 +33,7 @@ import { HeroBannerComponent } from '@shared/components/hero-banner/hero-banner'
   styleUrl: './entry-detail.scss',
 })
 export class EntryDetailComponent {
-  @ViewChild('aiResultCard') private aiResultCard?: ElementRef<HTMLElement>;
+  @ViewChild('aiResultCard', { read: ElementRef }) private aiResultCard?: ElementRef<HTMLElement>;
 
   readonly entry = signal<Entry | null>(null);
   readonly loading = signal(true);

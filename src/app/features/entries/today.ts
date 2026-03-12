@@ -31,7 +31,7 @@ import { HeroBannerComponent } from '@shared/components/hero-banner/hero-banner'
   styleUrl: './today.scss',
 })
 export class TodayComponent {
-  @ViewChild('aiResultCard') private aiResultCard?: ElementRef<HTMLElement>;
+  @ViewChild('aiResultCard', { read: ElementRef }) private aiResultCard?: ElementRef<HTMLElement>;
 
   readonly entry = signal<Entry | null>(null);
   readonly loading = signal(true);
